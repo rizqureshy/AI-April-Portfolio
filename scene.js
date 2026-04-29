@@ -4,7 +4,8 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 export function createScene(container) {
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x03040a, 0.0085);
+  // A whisper of fog for atmospheric depth, but light enough that tiles stay crisp.
+  scene.fog = new THREE.FogExp2(0x03040a, 0.0028);
 
   const camera = new THREE.PerspectiveCamera(
     55,
@@ -17,8 +18,9 @@ export function createScene(container) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  // No tone mapping — keeps procedural tile textures crisp and at full brightness.
+  renderer.toneMapping = THREE.NoToneMapping;
+  renderer.toneMappingExposure = 1.0;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   container.appendChild(renderer.domElement);
 
@@ -108,6 +110,7 @@ function makeStarfield(count, radius, sizeBoost = 1, opacity = 0.85) {
     transparent: true,
     opacity,
     depthWrite: false,
+    fog: false, // sky should stay fully visible regardless of camera distance
   });
   return new THREE.Points(geo, mat);
 }
@@ -156,6 +159,7 @@ function makeTwinklingStars(count, radius) {
     transparent: true,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
+    fog: false,
   });
   mat.onBeforeCompile = (shader) => {
     shader.uniforms.uTime = { value: 0 };
@@ -194,6 +198,7 @@ function makeNebulae() {
         transparent: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
+        fog: false,
       })
     );
     m.position.set(...s.pos);

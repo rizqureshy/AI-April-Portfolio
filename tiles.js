@@ -82,6 +82,7 @@ function makeTile(item, cat) {
     opacity: 0.55,
     side: THREE.DoubleSide,
     depthWrite: false,
+    fog: false,
   });
   const frame = new THREE.Mesh(new THREE.PlaneGeometry(TILE_W + 0.32, TILE_H + 0.32), frameMat);
   frame.position.z = -0.02;
@@ -93,6 +94,7 @@ function makeTile(item, cat) {
     map: placeholder,
     side: THREE.DoubleSide,
     transparent: true,
+    fog: false,
   });
   const front = new THREE.Mesh(new THREE.PlaneGeometry(TILE_W, TILE_H), frontMat);
   group.add(front);
