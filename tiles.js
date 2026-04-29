@@ -97,18 +97,32 @@ function makeTile(item, cat) {
   const front = new THREE.Mesh(new THREE.PlaneGeometry(TILE_W, TILE_H), frontMat);
   group.add(front);
 
-  // For images / videos / decks, try to load a real preview asynchronously.
+  // Default the deck tile to a slide-style cover immediately (decks otherwise look blank).
+  if (item.type === "deck") {
+    frontMat.map = makeDeckSlideCard(item, cat);
+    frontMat.needsUpdate = true;
+  } else if (item.type === "video" && item.file) {
+    frontMat.map = makeVideoCard(item, cat);
+    frontMat.needsUpdate = true;
+  }
+
+  const setMap = (tex) => { frontMat.map = tex; frontMat.needsUpdate = true; };
+
+  // Async: load real previews per type.
   if (item.type === "image" && item.file) {
     texLoader.load(item.file, (tex) => {
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.anisotropy = 8;
-      frontMat.map = composeImageOnCard(tex, item, cat);
-      frontMat.needsUpdate = true;
+      setMap(composeImageOnCard(tex.image, item, cat));
     });
   } else if (item.type === "video" && item.file) {
-    // Use a static canvas card; we'll show the actual video in the modal.
-    frontMat.map = makeVideoCard(item, cat);
-    frontMat.needsUpdate = true;
+    captureVideoFrame(item.file)
+      .then((frameImg) => { setMap(composeImageOnCard(frameImg, item, cat, { play: true })); })
+      .catch(() => { /* keep filmstrip slate */ });
+  } else if (item.type === "app" && item.url) {
+    loadAppScreenshot(item.url)
+      .then((img) => { setMap(composeImageOnCard(img, item, cat, { browserChrome: true, url: item.url })); })
+      .catch(() => { /* keep procedural placeholder */ });
   }
 
   group.userData.front = front;
@@ -164,8 +178,9 @@ function makePlaceholderTexture(item, cat) {
   return tex;
 }
 
-function composeImageOnCard(imgTex, item, cat) {
-  // Compose the loaded image with a corner caption strip for legibility.
+function composeImageOnCard(source, item, cat, opts = {}) {
+  // Compose any drawable source (HTMLImageElement / HTMLCanvasElement / HTMLVideoElement)
+  // with a caption strip for legibility.
   const w = 1024, h = Math.round(w * (TILE_H / TILE_W));
   const c = document.createElement("canvas");
   c.width = w; c.height = h;
@@ -173,15 +188,51 @@ function composeImageOnCard(imgTex, item, cat) {
   ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, w, h);
 
-  const img = imgTex.image;
-  if (img && img.width) {
-    // cover-fit
-    const ir = img.width / img.height;
+  const sw = source && (source.naturalWidth || source.videoWidth || source.width);
+  const sh = source && (source.naturalHeight || source.videoHeight || source.height);
+  if (sw && sh) {
+    const ir = sw / sh;
     const cr = w / h;
     let dw, dh, dx, dy;
     if (ir > cr) { dh = h; dw = h * ir; dx = (w - dw) / 2; dy = 0; }
     else { dw = w; dh = w / ir; dx = 0; dy = (h - dh) / 2; }
-    ctx.drawImage(img, dx, dy, dw, dh);
+    ctx.drawImage(source, dx, dy, dw, dh);
+  }
+
+  // Optional play-button overlay for videos
+  if (opts.play) {
+    ctx.fillStyle = "rgba(0,0,0,.35)";
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = cat.accent;
+    ctx.beginPath();
+    ctx.arc(w / 2, h / 2 - 30, 70, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#0a0612";
+    ctx.beginPath();
+    ctx.moveTo(w / 2 - 22, h / 2 - 60);
+    ctx.lineTo(w / 2 - 22, h / 2);
+    ctx.lineTo(w / 2 + 32, h / 2 - 30);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Optional browser-chrome overlay for app screenshots
+  if (opts.browserChrome) {
+    ctx.fillStyle = "rgba(8,10,18,.92)";
+    ctx.fillRect(0, 0, w, 44);
+    ["#ff5f57", "#febc2e", "#28c840"].forEach((col, i) => {
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(28 + i * 22, 22, 7, 0, Math.PI * 2); ctx.fill();
+    });
+    ctx.fillStyle = "rgba(255,255,255,.06)";
+    roundRect(ctx, 110, 11, w - 240, 22, 11); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.55)";
+    ctx.font = "500 13px Inter, system-ui, sans-serif";
+    ctx.textAlign = "center";
+    let host = "";
+    try { host = new URL(opts.url || "").hostname.replace(/^www\./, ""); } catch {}
+    ctx.fillText(host, w / 2, 26);
+    ctx.textAlign = "left";
   }
 
   // Bottom caption strip
@@ -347,4 +398,120 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.arcTo(x, y + h, x, y, r);
   ctx.arcTo(x, y, x + w, y, r);
   ctx.closePath();
+}
+
+// ---------------- live previews ----------------
+
+// Live app screenshot via the public thum.io service. Returns an HTMLImageElement.
+function loadAppScreenshot(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    let done = false;
+    const timer = setTimeout(() => { if (!done) { done = true; reject(new Error("timeout")); } }, 12000);
+    img.onload = () => { if (!done) { done = true; clearTimeout(timer); resolve(img); } };
+    img.onerror = () => { if (!done) { done = true; clearTimeout(timer); reject(new Error("img error")); } };
+    img.src = "https://image.thum.io/get/width/1280/crop/720/noanimate/" + url;
+  });
+}
+
+// Extract a single frame from a video file (~5% in) as an HTMLCanvasElement.
+function captureVideoFrame(file) {
+  return new Promise((resolve, reject) => {
+    const v = document.createElement("video");
+    v.preload = "metadata";
+    v.muted = true;
+    v.playsInline = true;
+    v.crossOrigin = "anonymous";
+    let done = false;
+    const cleanup = () => { try { v.removeAttribute("src"); v.load(); } catch {} };
+    const fail = (e) => { if (!done) { done = true; cleanup(); reject(e); } };
+    const timer = setTimeout(() => fail(new Error("video timeout")), 15000);
+
+    v.addEventListener("loadeddata", () => {
+      try {
+        const target = Math.min(0.6, (v.duration || 1) * 0.05);
+        v.currentTime = target;
+      } catch (e) { fail(e); }
+    }, { once: true });
+
+    v.addEventListener("seeked", () => {
+      if (done) return;
+      try {
+        const c = document.createElement("canvas");
+        c.width = v.videoWidth || 1280;
+        c.height = v.videoHeight || 720;
+        const ctx = c.getContext("2d");
+        ctx.drawImage(v, 0, 0, c.width, c.height);
+        done = true;
+        clearTimeout(timer);
+        cleanup();
+        resolve(c);
+      } catch (e) { fail(e); }
+    }, { once: true });
+
+    v.addEventListener("error", () => fail(new Error("video error")), { once: true });
+    v.src = file;
+    v.load();
+  });
+}
+
+// Slide-style title card for strategy decks (no real first-slide extraction client-side).
+function makeDeckSlideCard(item, cat) {
+  const w = 1024, h = Math.round(w * (TILE_H / TILE_W));
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d");
+
+  // Slide background — clean off-white with subtle grid
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, "#f6f5f0");
+  g.addColorStop(1, "#e8e6df");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.strokeStyle = "rgba(0,0,0,0.04)";
+  ctx.lineWidth = 1;
+  for (let x = 0; x < w; x += 64) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+
+  // Equinix red accent stripe down the left edge
+  ctx.fillStyle = "#E5202E";
+  ctx.fillRect(0, 0, 14, h);
+
+  // "Strategy Deck" eyebrow label
+  ctx.fillStyle = "#E5202E";
+  ctx.font = "700 22px Inter, system-ui, sans-serif";
+  ctx.fillText("STRATEGY DECK · GTM AI", 56, 90);
+
+  // Big title (wrapped)
+  ctx.fillStyle = "#13131a";
+  ctx.font = "800 60px Inter, system-ui, sans-serif";
+  wrapText(ctx, item.title, 56, 175, w - 110, 66);
+
+  // Author byline at bottom
+  ctx.fillStyle = "#5a6378";
+  ctx.font = "500 24px Inter, system-ui, sans-serif";
+  ctx.fillText(`by ${item.author || "Team"}`, 56, h - 70);
+
+  // Equinix mark bottom-right
+  ctx.fillStyle = "#13131a";
+  ctx.font = "700 18px Inter, system-ui, sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText("EQUINIX · GTM ENABLEMENT", w - 56, h - 70);
+  ctx.fillStyle = "#9aa1ad";
+  ctx.font = "500 14px Inter, system-ui, sans-serif";
+  ctx.fillText("Slide 1", w - 56, h - 42);
+  ctx.textAlign = "left";
+
+  // Soft inner shadow for depth
+  const shadow = ctx.createLinearGradient(0, h - 120, 0, h);
+  shadow.addColorStop(0, "rgba(0,0,0,0)");
+  shadow.addColorStop(1, "rgba(0,0,0,0.12)");
+  ctx.fillStyle = shadow;
+  ctx.fillRect(0, h - 120, w, 120);
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
 }

@@ -2,8 +2,9 @@
 // Each item: { type, title, author, file?, url?, thumb?, blurb? }
 // type: 'image' | 'video' | 'app' | 'deck'
 
-export const TEAM_NAME = "Equinix GTM Enablement";
-export const TAGLINE  = "A Living Canvas of AI-powered work — apps, art, dashboards, strategy, and stories.";
+export const APP_NAME  = "GTM AI Canvas";
+export const TEAM_NAME = "Equinix · GTM Enablement";
+export const TAGLINE   = "A living 3D canvas of AI-powered work — apps, art, dashboards, strategy, and stories.";
 
 export const CATEGORIES = [
   { id: "apps",        label: "Apps & Tools",       color: 0x6FF7FF, accent: "#6FF7FF" },
