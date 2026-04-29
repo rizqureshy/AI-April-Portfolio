@@ -28,13 +28,18 @@
   .chip:hover{border-color:rgba(255,255,255,.25);transform:translateY(-1px)}
   .chip.active{background:linear-gradient(135deg, rgba(229,32,46,.35), rgba(229,32,46,.10));border-color:rgba(229,32,46,.55)}
 
-  /* Title overlay (center) */
-  .hero{position:fixed;left:50%;top:46%;transform:translate(-50%,-50%);text-align:center;z-index:3;pointer-events:none;opacity:1;transition:opacity .8s ease}
+  /* Title overlay (center) — used during the spin reveal */
+  .hero{position:fixed;left:50%;top:46%;transform:translate(-50%,-50%);text-align:center;z-index:3;pointer-events:none;opacity:1;transition:opacity .8s ease, top .6s ease, transform .6s ease, font-size .6s ease}
   .hero.hidden{opacity:0}
-  .hero h1{font-size:clamp(28px,4.4vw,56px);margin:0;font-weight:800;letter-spacing:-.01em;background:linear-gradient(180deg,#fff 30%,#9bb1d6 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 40px rgba(150,180,255,.18)}
-  .hero p{margin:10px auto 0;max-width:640px;color:var(--muted);font-size:15px;line-height:1.55}
-  .hero .pill{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;padding:6px 12px;border-radius:999px;background:rgba(229,32,46,.12);border:1px solid rgba(229,32,46,.4);color:#ffd0d4;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+  .hero h1{font-size:clamp(28px,4.4vw,56px);margin:0;font-weight:800;letter-spacing:-.01em;background:linear-gradient(180deg,#fff 30%,#9bb1d6 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 40px rgba(150,180,255,.18);transition:font-size .5s ease}
+  .hero p{margin:10px auto 0;max-width:640px;color:var(--muted);font-size:15px;line-height:1.55;transition:opacity .35s ease, max-height .35s ease}
+  .hero .pill{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;padding:6px 12px;border-radius:999px;background:rgba(229,32,46,.12);border:1px solid rgba(229,32,46,.4);color:#ffd0d4;font-size:12px;letter-spacing:.08em;text-transform:uppercase;transition:opacity .35s ease}
   .hero .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--eqx);box-shadow:0 0 10px var(--eqx)}
+
+  /* Post-splash hero — compact top banner so it sits above the canvas, not over it */
+  .hero.compact{top:74px;transform:translate(-50%,0)}
+  .hero.compact h1{font-size:clamp(20px,2.6vw,30px);font-weight:700;letter-spacing:.01em}
+  .hero.compact p,.hero.compact .pill{display:none}
 
   /* Bottom hint */
   .hint{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--muted);z-index:3;pointer-events:none;letter-spacing:.04em}

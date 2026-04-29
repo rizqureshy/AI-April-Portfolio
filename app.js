@@ -353,6 +353,7 @@ function playIntro() {
   introPlaying = true;
   controls.enabled = false;
   controls.autoRotate = false;
+  hero.classList.remove("compact");
   hero.classList.remove("hidden");
   skipBtn.classList.add("show");
 
@@ -437,9 +438,10 @@ function endIntro(skipped = false) {
   skipBtn.classList.remove("show");
   controls.enabled = true;
   if (!skipped) {
-    // Show the hero briefly then fade
+    // Post-splash: show the title as a slim top banner above the canvas, not over it.
+    hero.classList.add("compact");
     hero.classList.remove("hidden");
-    setTimeout(() => hero.classList.add("hidden"), 2400);
+    setTimeout(() => hero.classList.add("hidden"), 4000);
   }
   try { sessionStorage.setItem("introSeen_v2", "1"); } catch {}
 }
