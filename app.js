@@ -2,7 +2,7 @@
 import * as THREE from "three";
 import { createScene } from "./scene.js";
 import { buildTiles } from "./tiles.js";
-import { CATEGORIES, ITEMS, TEAM_NAME } from "./data.js";
+import { CATEGORIES, ITEMS, TEAM_NAME, APP_NAME } from "./data.js";
 
 // ------------- bootstrap scene -------------
 const container = document.body;
@@ -92,9 +92,29 @@ const mBy = document.getElementById("m-by");
 const mSwatch = document.getElementById("m-swatch");
 const mBody = document.getElementById("m-body");
 const mOpen = document.getElementById("m-open");
+const mFs = document.getElementById("m-fs");
+const panelEl = document.querySelector(".panel");
 document.getElementById("m-close").addEventListener("click", closeModal);
 modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
-window.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    // Esc handled natively by fullscreen if active; otherwise close modal or skip intro
+    if (document.fullscreenElement) return;
+    if (introPlaying) { skipIntro(); return; }
+    closeModal();
+  }
+});
+
+// Fullscreen toggle on the modal panel
+mFs.addEventListener("click", async () => {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await panelEl.requestFullscreen();
+  } catch (err) { console.warn("Fullscreen failed:", err); }
+});
+document.addEventListener("fullscreenchange", () => {
+  mFs.textContent = document.fullscreenElement ? "⤢ Exit full" : "⛶ Fullscreen";
+});
 
 function openItem(item, cat) {
   mTitle.textContent = item.title;
@@ -143,24 +163,51 @@ function openItem(item, cat) {
     mOpen.href = item.url;
     mOpen.textContent = "Open app ↗";
   } else if (item.type === "deck" && item.file) {
-    const card = document.createElement("div");
-    card.className = "deck-card";
-    card.innerHTML = `
-      <div class="ic">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="14" rx="2"/>
-          <line x1="3" y1="9" x2="21" y2="9"/>
-          <line x1="12" y1="18" x2="12" y2="22"/>
-          <line x1="8" y1="22" x2="16" y2="22"/>
-        </svg>
-      </div>
-      <h2 style="margin:0;font-weight:700">Strategy Deck</h2>
-      <p>${escapeHtml(item.title)} — by ${escapeHtml(item.author || "Team")}.<br/>PowerPoint files preview best when downloaded or opened in Microsoft 365.</p>
-    `;
-    mBody.appendChild(card);
-    mOpen.href = item.file;
-    mOpen.setAttribute("download", "");
-    mOpen.textContent = "Download .pptx ↗";
+    // Embed PowerPoint via Office Online viewer when the file is reachable on a public URL.
+    // Falls back to a download card when serving over file:// or localhost (Office can't fetch it).
+    const absolute = new URL(item.file, window.location.href).href;
+    const isPublic = /^https?:/.test(absolute) && !/^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)/i.test(absolute);
+
+    if (isPublic) {
+      const wrap = document.createElement("div");
+      wrap.style.cssText = "position:relative;width:100%;height:78vh;background:#fff";
+      const iframe = document.createElement("iframe");
+      iframe.src = "https://view.officeapps.live.com/op/embed.aspx?src=" + encodeURIComponent(absolute);
+      iframe.style.cssText = "width:100%;height:100%;border:0;background:#fff";
+      iframe.setAttribute("loading", "lazy");
+      iframe.setAttribute("referrerpolicy", "no-referrer-when-downgrade");
+      iframe.setAttribute("allowfullscreen", "");
+      wrap.appendChild(iframe);
+
+      const note = document.createElement("div");
+      note.style.cssText = "position:absolute;left:14px;bottom:14px;font-size:11px;color:#9bb1d6;background:rgba(5,6,13,.7);padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.08)";
+      note.innerHTML = `Rendered by Microsoft Office Online. If it doesn't load, click <b>Download ↗</b>.`;
+      wrap.appendChild(note);
+
+      mBody.appendChild(wrap);
+      mOpen.href = item.file;
+      mOpen.setAttribute("download", "");
+      mOpen.textContent = "Download .pptx ↗";
+    } else {
+      const card = document.createElement("div");
+      card.className = "deck-card";
+      card.innerHTML = `
+        <div class="ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="14" rx="2"/>
+            <line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="12" y1="18" x2="12" y2="22"/>
+            <line x1="8" y1="22" x2="16" y2="22"/>
+          </svg>
+        </div>
+        <h2 style="margin:0;font-weight:700">Strategy Deck</h2>
+        <p>${escapeHtml(item.title)} — by ${escapeHtml(item.author || "Team")}.<br/>Inline preview is available once this canvas is published on a public URL (e.g. GitHub Pages). Until then, please download the file.</p>
+      `;
+      mBody.appendChild(card);
+      mOpen.href = item.file;
+      mOpen.setAttribute("download", "");
+      mOpen.textContent = "Download .pptx ↗";
+    }
   }
 
   modal.classList.add("open");
@@ -174,7 +221,7 @@ function closeModal() {
 }
 
 function openAbout() {
-  mTitle.textContent = "The Living Canvas";
+  mTitle.textContent = APP_NAME;
   mBy.textContent = `${TEAM_NAME} · April 2026`;
   mSwatch.style.background = "#E5202E";
   mBody.innerHTML = `
@@ -185,9 +232,9 @@ function openAbout() {
           <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
         </svg>
       </div>
-      <h2 style="margin:0;font-weight:700">A canvas of our AI run</h2>
-      <p>This 3D space brings together ${totalItems} artifacts our team produced during the April AI sprint — apps, art, dashboards, strategy decks, animations, and courses. Each cluster is a different medium; each tile is the work of a teammate.</p>
-      <p>Drag to orbit, scroll to zoom, click any tile to dive in. Use the bottom filters to focus a single cluster.</p>
+      <h2 style="margin:0;font-weight:700">${APP_NAME}</h2>
+      <p>A living 3D canvas of ${totalItems} artifacts produced by ${TEAM_NAME} during the April AI sprint — apps, art, dashboards, strategy decks, animations, and courses. Each cluster is a different medium; each tile is the work of a teammate.</p>
+      <p>Drag to orbit, scroll to zoom, click any tile to dive in. Use the filters below to focus a single cluster, or replay the intro from the top right.</p>
     </div>
   `;
   mOpen.style.display = "none";
@@ -210,6 +257,68 @@ function flyCameraTo(toPos, toTarget, dur = 900) {
     dur,
   };
 }
+
+// ------------- intro cinematic -------------
+const HOME_POS = new THREE.Vector3(0, 18, 92);
+const HOME_TARGET = new THREE.Vector3(0, 0, 0);
+let introPlaying = false;
+let introTimer = null;
+const skipBtn = document.getElementById("skip");
+
+const CINEMATIC_WAYPOINTS = [
+  // [position, target, duration ms]
+  [new THREE.Vector3(0,   90, 230), new THREE.Vector3(0,  0, 0),  1500],
+  [new THREE.Vector3(70,  35,  60), new THREE.Vector3(0,  0, 0),  1700],
+  [new THREE.Vector3(-65, 18,  72), new THREE.Vector3(0,  0, 0),  1700],
+  [new THREE.Vector3(0,    8,  44), new THREE.Vector3(0,  0, 0),  1500],
+  [HOME_POS.clone(),                 HOME_TARGET.clone(),         1400],
+];
+
+function playIntro() {
+  if (introPlaying) return;
+  introPlaying = true;
+  controls.enabled = false;
+  controls.autoRotate = false;
+  hero.classList.add("hidden");
+  skipBtn.classList.add("show");
+
+  // Snap to first waypoint instantly, then ease through the rest.
+  const [startPos, startTarget] = CINEMATIC_WAYPOINTS[0];
+  camera.position.copy(startPos);
+  controls.target.copy(startTarget);
+
+  let i = 1;
+  const next = () => {
+    if (!introPlaying) return;
+    if (i >= CINEMATIC_WAYPOINTS.length) { endIntro(); return; }
+    const [pos, tgt, dur] = CINEMATIC_WAYPOINTS[i++];
+    flyCameraTo(pos, tgt, dur);
+    introTimer = setTimeout(next, dur + 30);
+  };
+  next();
+}
+
+function skipIntro() {
+  if (!introPlaying) return;
+  flyCameraTo(HOME_POS, HOME_TARGET, 600);
+  endIntro(true);
+}
+
+function endIntro(skipped = false) {
+  introPlaying = false;
+  if (introTimer) { clearTimeout(introTimer); introTimer = null; }
+  skipBtn.classList.remove("show");
+  controls.enabled = true;
+  if (!skipped) {
+    // Show the hero briefly then fade
+    hero.classList.remove("hidden");
+    setTimeout(() => hero.classList.add("hidden"), 2400);
+  }
+  try { sessionStorage.setItem("introSeen", "1"); } catch {}
+}
+
+skipBtn.addEventListener("click", skipIntro);
+document.getElementById("btn-intro").addEventListener("click", playIntro);
 
 // ------------- hide hero on first interaction -------------
 const hero = document.getElementById("hero");
@@ -286,8 +395,13 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-// Hide loader after first frame
+// Hide loader after first frame, then auto-play the cinematic on first visit.
 requestAnimationFrame(() => {
   animate();
-  setTimeout(() => document.getElementById("loader").classList.add("gone"), 350);
+  setTimeout(() => {
+    document.getElementById("loader").classList.add("gone");
+    let seen = false;
+    try { seen = sessionStorage.getItem("introSeen") === "1"; } catch {}
+    if (!seen) setTimeout(playIntro, 250);
+  }, 350);
 });

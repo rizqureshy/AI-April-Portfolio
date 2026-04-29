@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Equinix GTM Enablement — AI Living Canvas</title>
-<meta name="description" content="A 3D living canvas of AI-powered work from the Equinix GTM Enablement team — apps, art, dashboards, strategy decks, animations, and courses." />
+<title>GTM AI Canvas — Equinix</title>
+<meta name="description" content="GTM AI Canvas — a 3D living canvas of AI-powered work from the Equinix GTM Enablement team: apps, art, dashboards, strategy decks, animations, and courses." />
 <style>
   :root{
     --bg-0:#03040a; --bg-1:#0a0814; --ink:#eaf2ff; --muted:#8da0c0;
@@ -82,6 +82,16 @@
   /* Filter bar */
   .filters{position:fixed;left:50%;bottom:54px;transform:translateX(-50%);display:flex;gap:6px;flex-wrap:wrap;justify-content:center;z-index:4;pointer-events:auto;max-width:96vw}
 
+  /* Intro skip pill */
+  .skip{position:fixed;right:22px;bottom:22px;z-index:6;display:none;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;background:rgba(15,18,32,.78);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(10px);cursor:pointer;color:var(--ink);font-size:12px;letter-spacing:.04em}
+  .skip.show{display:inline-flex;animation:fade .3s ease}
+  .skip:hover{border-color:rgba(255,255,255,.3)}
+  .skip kbd{font-family:inherit;background:rgba(255,255,255,.06);border:1px solid var(--glass-stroke);padding:1px 6px;border-radius:5px;color:var(--muted);font-size:11px}
+
+  /* Modal in fullscreen mode */
+  .panel:fullscreen{width:100vw;height:100vh;max-width:none;max-height:none;border-radius:0;border:0}
+  .panel:fullscreen .body img,.panel:fullscreen .body video,.panel:fullscreen .body iframe{max-height:calc(100vh - 60px);height:calc(100vh - 60px)}
+
   @media (max-width:720px){
     .stats{display:none}
     .hint{font-size:11px}
@@ -101,11 +111,12 @@
   <div class="brand">
     <div class="brand-mark"></div>
     <div>
-      <div class="brand-text">Equinix · GTM Enablement</div>
-      <div class="brand-sub">AI Living Canvas — April 2026</div>
+      <div class="brand-text">GTM AI Canvas</div>
+      <div class="brand-sub">Equinix · GTM Enablement · April 2026</div>
     </div>
   </div>
   <div class="top-actions">
+    <button class="chip" id="btn-intro" title="Replay the intro cinematic">▶ Intro</button>
     <button class="chip" id="btn-reset" title="Recenter the camera">Recenter</button>
     <button class="chip" id="btn-spin" title="Toggle auto-rotation">Auto-orbit</button>
     <button class="chip" id="btn-about" title="About this canvas">About</button>
@@ -113,9 +124,9 @@
 </div>
 
 <div class="hero" id="hero">
-  <span class="pill">Live · Built with AI</span>
-  <h1>A Living Canvas of Our AI Run</h1>
-  <p>Drag to orbit, scroll to zoom, and click any tile to explore the apps, art, dashboards, decks, and animations our team built together.</p>
+  <span class="pill">GTM AI Canvas · Live</span>
+  <h1>The GTM AI Canvas</h1>
+  <p>A living 3D canvas of everything our team built this AI run — apps, art, dashboards, strategy decks, animations and courses. Drag to orbit, scroll to zoom, click any tile to explore.</p>
 </div>
 
 <div class="filters" id="filters"></div>
@@ -132,6 +143,8 @@
 
 <div class="tip" id="tip"><b id="tip-title"></b><span id="tip-by"></span></div>
 
+<button class="skip" id="skip">Skip intro <kbd>Esc</kbd></button>
+
 <div class="modal" id="modal" role="dialog" aria-modal="true">
   <div class="panel">
     <header>
@@ -143,6 +156,7 @@
         </div>
       </div>
       <div class="actions">
+        <button class="btn" id="m-fs" title="Toggle fullscreen">⛶ Fullscreen</button>
         <a class="btn" id="m-open" target="_blank" rel="noopener">Open ↗</a>
         <button class="btn primary" id="m-close">Close</button>
       </div>
