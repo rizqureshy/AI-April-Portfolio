@@ -117,6 +117,7 @@
   </div>
   <div class="top-actions">
     <button class="chip" id="btn-intro" title="Replay the intro cinematic">▶ Intro</button>
+    <button class="chip" id="btn-mute" title="Toggle background music" aria-pressed="false">🔊 Music</button>
     <button class="chip" id="btn-reset" title="Recenter the camera">Recenter</button>
     <button class="chip" id="btn-spin" title="Toggle auto-rotation">Auto-orbit</button>
     <button class="chip" id="btn-about" title="About this canvas">About</button>
@@ -144,6 +145,8 @@
 <div class="tip" id="tip"><b id="tip-title"></b><span id="tip-by"></span></div>
 
 <button class="skip" id="skip">Skip intro <kbd>Esc</kbd></button>
+
+<audio id="bg-audio" src="./successtrack.mp3" loop preload="auto"></audio>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true">
   <div class="panel">
