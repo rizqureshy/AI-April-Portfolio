@@ -44,18 +44,18 @@ export function createScene(container) {
   fill.position.set(-50, 30, -40);
   scene.add(fill);
 
-  // Starfield
-  scene.add(makeStarfield(2400, 380));
-  scene.add(makeStarfield(800, 900, 0.8, 0.35));
+  // Atmospheric night sky — multiple layers for parallax + twinkle.
+  const skyGroup = new THREE.Group();
+  scene.add(skyGroup);
 
-  // Soft nebula glow plane behind everything
-  const nebulaTex = makeRadialTexture("#1a1230", "#03040a", 512);
-  const nebula = new THREE.Mesh(
-    new THREE.PlaneGeometry(900, 900),
-    new THREE.MeshBasicMaterial({ map: nebulaTex, transparent: true, opacity: 0.85, depthWrite: false })
-  );
-  nebula.position.set(0, 0, -260);
-  scene.add(nebula);
+  const farField     = makeStarfield(900, 950, 0.7, 0.28);   // distant, faint
+  const midField     = makeStarfield(1800, 480, 0.9, 0.55);  // mid layer
+  const twinkleField = makeTwinklingStars(1400, 320);        // close, twinkling
+  skyGroup.add(farField, midField, twinkleField);
+
+  // Soft nebula clouds — large additive planes drifting behind everything
+  const nebulae = makeNebulae();
+  scene.add(nebulae);
 
   // Central core — pulsing orb representing the team
   const core = makeCore();
@@ -68,7 +68,17 @@ export function createScene(container) {
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-  return { scene, camera, renderer, controls, core };
+  // Sky tick: slow parallax rotation + twinkle uniform
+  const skyTick = (t) => {
+    farField.rotation.y = t * 0.005;
+    midField.rotation.y = -t * 0.008;
+    twinkleField.rotation.y = t * 0.012;
+    nebulae.children.forEach((n, i) => { n.rotation.z = t * 0.01 * (i % 2 ? 1 : -1); });
+    const m = twinkleField.material;
+    if (m && m.userData && m.userData.shader) m.userData.shader.uniforms.uTime.value = t;
+  };
+
+  return { scene, camera, renderer, controls, core, skyTick };
 }
 
 function makeStarfield(count, radius, sizeBoost = 1, opacity = 0.85) {
@@ -114,6 +124,83 @@ function makeRadialTexture(inner, outer, size = 256) {
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   return t;
+}
+
+// Twinkling star layer — uses PointsMaterial with shader injection so each
+// star's alpha is modulated by sin(time + seed) for a subtle dimming/brightening effect.
+function makeTwinklingStars(count, radius) {
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(count * 3);
+  const col = new Float32Array(count * 3);
+  const seed = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    const r = radius * (0.5 + Math.random() * 0.5);
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    pos[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+    pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+    pos[i * 3 + 2] = r * Math.cos(phi);
+    const t = Math.random();
+    const c = new THREE.Color().setHSL(0.55 + t * 0.12, 0.25 + t * 0.4, 0.7 + t * 0.25);
+    col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+    seed[i] = Math.random() * 6.2832;
+  }
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute("color",    new THREE.BufferAttribute(col, 3));
+  geo.setAttribute("aSeed",    new THREE.BufferAttribute(seed, 1));
+
+  const mat = new THREE.PointsMaterial({
+    size: 1.4,
+    sizeAttenuation: true,
+    vertexColors: true,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = { value: 0 };
+    shader.vertexShader = shader.vertexShader
+      .replace("#include <common>",
+               "#include <common>\nattribute float aSeed;\nuniform float uTime;\nvarying float vTwinkle;")
+      .replace("#include <begin_vertex>",
+               "#include <begin_vertex>\nvTwinkle = 0.45 + 0.55 * (0.5 + 0.5 * sin(uTime * 1.4 + aSeed));");
+    shader.fragmentShader = shader.fragmentShader
+      .replace("#include <common>",
+               "#include <common>\nvarying float vTwinkle;")
+      .replace("vec4 diffuseColor = vec4( diffuse, opacity );",
+               "vec2 _d = gl_PointCoord - 0.5;\nfloat _r = dot(_d, _d);\nfloat _a = smoothstep(0.25, 0.0, _r);\nvec4 diffuseColor = vec4( diffuse, opacity * _a * vTwinkle );");
+    mat.userData.shader = shader;
+  };
+
+  return new THREE.Points(geo, mat);
+}
+
+// Soft nebula clouds — a few large additive planes with radial gradients,
+// placed behind the canvas so they read as a deep night sky without obstructing.
+function makeNebulae() {
+  const group = new THREE.Group();
+  const specs = [
+    { color: ["rgba(120,40,160,.55)",  "rgba(120,40,160,0)"], size: 720,  pos: [-160,  60, -300], rot:  0.2 },
+    { color: ["rgba(40, 90, 200,.45)", "rgba(40, 90,200,0)"], size: 800,  pos: [ 180, -40, -320], rot: -0.3 },
+    { color: ["rgba(180,40, 80,.32)",  "rgba(180,40, 80,0)"], size: 560,  pos: [ -40,-120, -260], rot:  0.6 },
+    { color: ["rgba(20, 30, 60,.55)",  "rgba(20, 30, 60,0)"], size: 1100, pos: [   0,   0, -380], rot:  0   },
+  ];
+  for (const s of specs) {
+    const tex = makeRadialTexture(s.color[0], s.color[1], 512);
+    const m = new THREE.Mesh(
+      new THREE.PlaneGeometry(s.size, s.size),
+      new THREE.MeshBasicMaterial({
+        map: tex,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      })
+    );
+    m.position.set(...s.pos);
+    m.rotation.z = s.rot;
+    group.add(m);
+  }
+  return group;
 }
 
 function makeCore() {
