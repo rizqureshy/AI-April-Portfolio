@@ -54,8 +54,11 @@ export function buildTiles(scene) {
       const tile = makeTile(item, cat);
       tile.position.set(x, y, z);
 
-      // Face the origin (so all tiles look inward)
+      // Aim the tile's local Z axis at the origin, then flip 180° so the FRONT
+      // of the tile faces outward — the camera always orbits outside the ring
+      // and should see the front (with un-mirrored UVs).
       tile.lookAt(0, y * 0.4, 0);
+      tile.rotateY(Math.PI);
 
       // Bobbing seed
       tile.userData.seed = Math.random() * Math.PI * 2;
