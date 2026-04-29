@@ -344,16 +344,25 @@ function playIntro() {
   hero.classList.remove("hidden");
   skipBtn.classList.add("show");
 
-  // Phase 1 — spin reveal: hold the camera near home and spin the world a full turn
+  // Phase 1 — spin reveal: hold the camera close to home and spin the world a full turn
   // so each cluster name (Apps, Art, Dashboards, Decks, Animations, Courses) sweeps past.
   // Cluster labels pulse a touch larger to read clearly during the reveal.
-  const REVEAL_DURATION = 5200; // ~5 seconds, full 360°
+  const REVEAL_DURATION = 5400; // ~5.4 seconds, full 360°
+  // Reset world to a known orientation so a replay starts from the same place.
+  world.rotation.set(0, 0, 0);
   worldSpinDecay = (Math.PI * 2) / (REVEAL_DURATION / 1000);
   worldSpin = worldSpinDecay;
 
-  // Camera sits a little higher and farther for the reveal so all clusters fit in frame.
-  camera.position.set(0, 32, 130);
+  // Camera sits slightly elevated near home so clusters read clearly through the fog.
+  camera.position.set(0, 22, 96);
   controls.target.set(0, 0, 0);
+
+  // Temporarily lift the fog so distant tiles are still visible during the spin.
+  if (scene.fog) {
+    scene.userData.fogDensity = scene.fog.density;
+    scene.fog.density = scene.fog.density * 0.35;
+  }
+
   pulseLabels(REVEAL_DURATION);
 
   // Phase 2 — once the reveal completes, start the original waypoint flythrough.
@@ -408,6 +417,11 @@ function endIntro(skipped = false) {
   if (introTimer) { clearTimeout(introTimer); introTimer = null; }
   worldSpinDecay = 0;
   worldSpin = 0;
+  // Restore the fog if we'd softened it for the reveal.
+  if (scene.fog && scene.userData.fogDensity != null) {
+    scene.fog.density = scene.userData.fogDensity;
+    scene.userData.fogDensity = null;
+  }
   skipBtn.classList.remove("show");
   controls.enabled = true;
   if (!skipped) {
@@ -415,7 +429,7 @@ function endIntro(skipped = false) {
     hero.classList.remove("hidden");
     setTimeout(() => hero.classList.add("hidden"), 2400);
   }
-  try { sessionStorage.setItem("introSeen", "1"); } catch {}
+  try { sessionStorage.setItem("introSeen_v2", "1"); } catch {}
 }
 
 skipBtn.addEventListener("click", skipIntro);
@@ -507,7 +521,7 @@ requestAnimationFrame(() => {
   setTimeout(() => {
     document.getElementById("loader").classList.add("gone");
     let seen = false;
-    try { seen = sessionStorage.getItem("introSeen") === "1"; } catch {}
+    try { seen = sessionStorage.getItem("introSeen_v2") === "1"; } catch {}
     if (!seen) setTimeout(playIntro, 250);
   }, 350);
 });
