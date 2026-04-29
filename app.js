@@ -9,6 +9,14 @@ const container = document.body;
 const { scene, camera, renderer, controls, core } = createScene(container);
 const { tiles, labelGroup } = buildTiles(scene);
 
+// World pivot: a single group we can spin during the intro reveal.
+const world = new THREE.Group();
+scene.add(world);
+[...tiles].forEach((t) => world.attach(t));
+labelGroup.children.slice().forEach((l) => world.attach(l));
+let worldSpin = 0;       // continuous Y rotation applied each frame
+let worldSpinDecay = 0;  // speed (rad/s); decays to zero after the reveal phase
+
 // ------------- stats / filters chrome -------------
 const totalItems = Object.values(ITEMS).reduce((n, arr) => n + arr.length, 0);
 document.getElementById("stat-items").textContent = totalItems;
@@ -258,6 +266,60 @@ function flyCameraTo(toPos, toTarget, dur = 900) {
   };
 }
 
+// ------------- background audio -------------
+const bgAudio = document.getElementById("bg-audio");
+const muteBtn = document.getElementById("btn-mute");
+const TARGET_VOLUME = 0.18;
+let userMuted = false;
+bgAudio.volume = 0;
+bgAudio.loop = true;
+
+function fadeAudioTo(targetVol, ms = 1200) {
+  const startVol = bgAudio.volume;
+  const t0 = performance.now();
+  const step = () => {
+    const k = Math.min(1, (performance.now() - t0) / ms);
+    bgAudio.volume = startVol + (targetVol - startVol) * k;
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+async function tryStartAudio() {
+  if (userMuted) return;
+  try {
+    await bgAudio.play();
+    fadeAudioTo(TARGET_VOLUME, 1500);
+    refreshMuteBtn();
+  } catch {
+    // Autoplay was blocked — wait for the next user gesture.
+  }
+}
+
+function refreshMuteBtn() {
+  const off = userMuted || bgAudio.paused;
+  muteBtn.textContent = off ? "🔇 Music" : "🔊 Music";
+  muteBtn.classList.toggle("active", !off);
+  muteBtn.setAttribute("aria-pressed", String(!off));
+}
+
+muteBtn.addEventListener("click", async () => {
+  if (bgAudio.paused) {
+    userMuted = false;
+    try { await bgAudio.play(); fadeAudioTo(TARGET_VOLUME, 600); } catch {}
+  } else {
+    userMuted = true;
+    fadeAudioTo(0, 400);
+    setTimeout(() => bgAudio.pause(), 420);
+  }
+  refreshMuteBtn();
+});
+
+// First user gesture — try to (re)start audio if autoplay was blocked.
+const unlockAudio = () => { tryStartAudio(); };
+window.addEventListener("pointerdown", unlockAudio, { once: true });
+window.addEventListener("keydown", unlockAudio, { once: true });
+
 // ------------- intro cinematic -------------
 const HOME_POS = new THREE.Vector3(0, 18, 92);
 const HOME_TARGET = new THREE.Vector3(0, 0, 0);
@@ -279,23 +341,60 @@ function playIntro() {
   introPlaying = true;
   controls.enabled = false;
   controls.autoRotate = false;
-  hero.classList.add("hidden");
+  hero.classList.remove("hidden");
   skipBtn.classList.add("show");
 
-  // Snap to first waypoint instantly, then ease through the rest.
-  const [startPos, startTarget] = CINEMATIC_WAYPOINTS[0];
-  camera.position.copy(startPos);
-  controls.target.copy(startTarget);
+  // Phase 1 — spin reveal: hold the camera near home and spin the world a full turn
+  // so each cluster name (Apps, Art, Dashboards, Decks, Animations, Courses) sweeps past.
+  // Cluster labels pulse a touch larger to read clearly during the reveal.
+  const REVEAL_DURATION = 5200; // ~5 seconds, full 360°
+  worldSpinDecay = (Math.PI * 2) / (REVEAL_DURATION / 1000);
+  worldSpin = worldSpinDecay;
 
-  let i = 1;
-  const next = () => {
+  // Camera sits a little higher and farther for the reveal so all clusters fit in frame.
+  camera.position.set(0, 32, 130);
+  controls.target.set(0, 0, 0);
+  pulseLabels(REVEAL_DURATION);
+
+  // Phase 2 — once the reveal completes, start the original waypoint flythrough.
+  introTimer = setTimeout(() => {
     if (!introPlaying) return;
-    if (i >= CINEMATIC_WAYPOINTS.length) { endIntro(); return; }
-    const [pos, tgt, dur] = CINEMATIC_WAYPOINTS[i++];
-    flyCameraTo(pos, tgt, dur);
-    introTimer = setTimeout(next, dur + 30);
+    worldSpinDecay = 0; // freeze world for the camera flythrough
+    hero.classList.add("hidden");
+
+    // Snap to first waypoint instantly, then ease through the rest.
+    const [startPos, startTarget] = CINEMATIC_WAYPOINTS[0];
+    camera.position.copy(startPos);
+    controls.target.copy(startTarget);
+
+    let i = 1;
+    const next = () => {
+      if (!introPlaying) return;
+      if (i >= CINEMATIC_WAYPOINTS.length) { endIntro(); return; }
+      const [pos, tgt, dur] = CINEMATIC_WAYPOINTS[i++];
+      flyCameraTo(pos, tgt, dur);
+      introTimer = setTimeout(next, dur + 30);
+    };
+    next();
+  }, REVEAL_DURATION + 200);
+}
+
+// Briefly pulse cluster labels so they read clearly during the reveal phase.
+function pulseLabels(durationMs) {
+  const t0 = performance.now();
+  const baseScales = labelGroup.children.map((s) => s.scale.x);
+  const tick = () => {
+    const k = Math.min(1, (performance.now() - t0) / durationMs);
+    // smooth in/out on a sin curve
+    const s = 1 + Math.sin(k * Math.PI) * 0.18;
+    labelGroup.children.forEach((sprite, i) => {
+      sprite.scale.x = baseScales[i] * s;
+      sprite.scale.y = (baseScales[i] / 4) * s; // labels are 18 wide × 4.5 tall
+    });
+    if (k < 1 && introPlaying) requestAnimationFrame(tick);
+    else labelGroup.children.forEach((sprite, i) => { sprite.scale.x = baseScales[i]; sprite.scale.y = baseScales[i] / 4; });
   };
-  next();
+  requestAnimationFrame(tick);
 }
 
 function skipIntro() {
@@ -307,6 +406,8 @@ function skipIntro() {
 function endIntro(skipped = false) {
   introPlaying = false;
   if (introTimer) { clearTimeout(introTimer); introTimer = null; }
+  worldSpinDecay = 0;
+  worldSpin = 0;
   skipBtn.classList.remove("show");
   controls.enabled = true;
   if (!skipped) {
@@ -337,7 +438,12 @@ function animate() {
   const t = clock.getElapsedTime();
   const dt = clock.getDelta();
 
-  // Bobbing on tiles
+  // World spin during intro reveal
+  if (worldSpinDecay > 0) {
+    world.rotation.y += worldSpinDecay * dt;
+  }
+
+  // Bobbing on tiles (their basePos was captured before re-parenting, so it's still accurate locally)
   for (let i = 0; i < tiles.length; i++) {
     const tile = tiles[i];
     const seed = tile.userData.seed;
