@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Equinix GTM Enablement — AI Living Canvas</title>
+<meta name="description" content="A 3D living canvas of AI-powered work from the Equinix GTM Enablement team — apps, art, dashboards, strategy decks, animations, and courses." />
+<style>
+  :root{
+    --bg-0:#03040a; --bg-1:#0a0814; --ink:#eaf2ff; --muted:#8da0c0;
+    --eqx:#E5202E; --eqx-soft:#ff5b66;
+    --cyan:#6FF7FF; --pink:#FF6FB5; --gold:#FFC857; --violet:#B388FF; --green:#7CFFB2;
+    --glass: rgba(15,18,32,.62); --glass-stroke: rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:radial-gradient(1200px 800px at 50% 40%, #0a0a1c 0%, #03040a 65%, #000 100%);color:var(--ink);font-family:"Inter","SF Pro Text",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  canvas{display:block}
+  a{color:inherit}
+
+  /* Top bar */
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:14px 22px;pointer-events:none}
+  .brand{display:flex;align-items:center;gap:12px;pointer-events:auto}
+  .brand-mark{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,var(--eqx),#7a0a14);box-shadow:0 0 20px rgba(229,32,46,.55), inset 0 0 0 1px rgba(255,255,255,.15)}
+  .brand-text{font-weight:700;letter-spacing:.02em;font-size:14px}
+  .brand-sub{color:var(--muted);font-size:12px;margin-top:2px}
+  .top-actions{display:flex;gap:8px;pointer-events:auto}
+  .chip{font-size:12px;padding:7px 11px;border-radius:999px;background:var(--glass);border:1px solid var(--glass-stroke);backdrop-filter:blur(8px);cursor:pointer;color:var(--ink);transition:all .2s ease}
+  .chip:hover{border-color:rgba(255,255,255,.25);transform:translateY(-1px)}
+  .chip.active{background:linear-gradient(135deg, rgba(229,32,46,.35), rgba(229,32,46,.10));border-color:rgba(229,32,46,.55)}
+
+  /* Title overlay (center) */
+  .hero{position:fixed;left:50%;top:46%;transform:translate(-50%,-50%);text-align:center;z-index:3;pointer-events:none;opacity:1;transition:opacity .8s ease}
+  .hero.hidden{opacity:0}
+  .hero h1{font-size:clamp(28px,4.4vw,56px);margin:0;font-weight:800;letter-spacing:-.01em;background:linear-gradient(180deg,#fff 30%,#9bb1d6 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 40px rgba(150,180,255,.18)}
+  .hero p{margin:10px auto 0;max-width:640px;color:var(--muted);font-size:15px;line-height:1.55}
+  .hero .pill{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;padding:6px 12px;border-radius:999px;background:rgba(229,32,46,.12);border:1px solid rgba(229,32,46,.4);color:#ffd0d4;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+  .hero .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--eqx);box-shadow:0 0 10px var(--eqx)}
+
+  /* Bottom hint */
+  .hint{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--muted);z-index:3;pointer-events:none;letter-spacing:.04em}
+  .hint kbd{font-family:inherit;background:var(--glass);border:1px solid var(--glass-stroke);padding:2px 7px;border-radius:6px;color:var(--ink)}
+
+  /* Stats */
+  .stats{position:fixed;left:22px;bottom:18px;z-index:3;display:flex;gap:14px;pointer-events:none;font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+  .stats b{color:var(--ink);font-weight:700;font-size:15px;display:block;letter-spacing:0;text-transform:none}
+
+  /* Loader */
+  .loader{position:fixed;inset:0;background:#03040a;z-index:50;display:grid;place-items:center;transition:opacity .6s ease;pointer-events:auto}
+  .loader.gone{opacity:0;pointer-events:none}
+  .loader .ring{width:54px;height:54px;border-radius:50%;border:2px solid rgba(255,255,255,.08);border-top-color:var(--eqx);animation:spin .9s linear infinite}
+  .loader .lbl{margin-top:14px;font-size:12px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* Tooltip on hover */
+  .tip{position:fixed;z-index:6;pointer-events:none;background:var(--glass);border:1px solid var(--glass-stroke);backdrop-filter:blur(10px);padding:8px 11px;border-radius:10px;font-size:12px;line-height:1.35;max-width:240px;opacity:0;transform:translate(-50%,-120%);transition:opacity .15s ease}
+  .tip b{display:block;font-size:13px;margin-bottom:2px}
+  .tip span{color:var(--muted);font-size:11px}
+
+  /* Modal */
+  .modal{position:fixed;inset:0;z-index:20;background:rgba(2,3,8,.78);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:24px}
+  .modal.open{display:flex;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .panel{background:linear-gradient(180deg,#0d1020,#070912);border:1px solid var(--glass-stroke);border-radius:16px;max-width:min(1100px,96vw);max-height:92vh;width:100%;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04);display:flex;flex-direction:column}
+  .panel header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--glass-stroke)}
+  .panel .meta{display:flex;align-items:center;gap:12px;min-width:0}
+  .panel .swatch{width:10px;height:10px;border-radius:50%}
+  .panel h3{margin:0;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .panel .by{color:var(--muted);font-size:12px}
+  .panel .actions{display:flex;gap:8px}
+  .btn{font-size:12px;padding:8px 12px;border-radius:8px;border:1px solid var(--glass-stroke);background:var(--glass);color:var(--ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .15s ease}
+  .btn:hover{border-color:rgba(255,255,255,.25)}
+  .btn.primary{background:linear-gradient(135deg,var(--eqx),#9c1019);border-color:rgba(229,32,46,.6);color:#fff}
+  .btn.primary:hover{filter:brightness(1.1)}
+  .panel .body{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#05060d;position:relative}
+  .panel .body img,.panel .body video,.panel .body iframe{max-width:100%;max-height:78vh;width:100%;height:78vh;object-fit:contain;background:#000;border:0}
+  .panel .body img{height:auto}
+  .deck-card{padding:36px;text-align:center;color:var(--ink)}
+  .deck-card .ic{width:74px;height:74px;margin:0 auto 16px;border-radius:14px;background:linear-gradient(135deg,var(--eqx),#7a0a14);display:grid;place-items:center;box-shadow:0 0 30px rgba(229,32,46,.4)}
+  .deck-card .ic svg{width:40px;height:40px}
+  .deck-card p{color:var(--muted);max-width:520px;margin:6px auto 18px;font-size:14px;line-height:1.5}
+
+  /* Filter bar */
+  .filters{position:fixed;left:50%;bottom:54px;transform:translateX(-50%);display:flex;gap:6px;flex-wrap:wrap;justify-content:center;z-index:4;pointer-events:auto;max-width:96vw}
+
+  @media (max-width:720px){
+    .stats{display:none}
+    .hint{font-size:11px}
+  }
+</style>
+</head>
+<body>
+
+<div class="loader" id="loader">
+  <div style="text-align:center">
+    <div class="ring"></div>
+    <div class="lbl">Composing the Living Canvas</div>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div>
+      <div class="brand-text">Equinix · GTM Enablement</div>
+      <div class="brand-sub">AI Living Canvas — April 2026</div>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button class="chip" id="btn-reset" title="Recenter the camera">Recenter</button>
+    <button class="chip" id="btn-spin" title="Toggle auto-rotation">Auto-orbit</button>
+    <button class="chip" id="btn-about" title="About this canvas">About</button>
+  </div>
+</div>
+
+<div class="hero" id="hero">
+  <span class="pill">Live · Built with AI</span>
+  <h1>A Living Canvas of Our AI Run</h1>
+  <p>Drag to orbit, scroll to zoom, and click any tile to explore the apps, art, dashboards, decks, and animations our team built together.</p>
+</div>
+
+<div class="filters" id="filters"></div>
+
+<div class="stats">
+  <div><b id="stat-items">—</b>artifacts</div>
+  <div><b id="stat-cats">6</b>clusters</div>
+  <div><b id="stat-team">14+</b>contributors</div>
+</div>
+
+<div class="hint">
+  <kbd>drag</kbd> orbit · <kbd>scroll</kbd> zoom · <kbd>click</kbd> open
+</div>
+
+<div class="tip" id="tip"><b id="tip-title"></b><span id="tip-by"></span></div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="panel">
+    <header>
+      <div class="meta">
+        <span class="swatch" id="m-swatch"></span>
+        <div style="min-width:0">
+          <h3 id="m-title">—</h3>
+          <div class="by" id="m-by">—</div>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="btn" id="m-open" target="_blank" rel="noopener">Open ↗</a>
+        <button class="btn primary" id="m-close">Close</button>
+      </div>
+    </header>
+    <div class="body" id="m-body"></div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="./app.js"></script>
+
+</body>
+</html>
