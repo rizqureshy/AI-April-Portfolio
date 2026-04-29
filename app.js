@@ -6,7 +6,7 @@ import { CATEGORIES, ITEMS, TEAM_NAME, APP_NAME } from "./data.js";
 
 // ------------- bootstrap scene -------------
 const container = document.body;
-const { scene, camera, renderer, controls, core } = createScene(container);
+const { scene, camera, renderer, controls, core, skyTick } = createScene(container);
 const { tiles, labelGroup } = buildTiles(scene);
 
 // World pivot: a single group we can spin during the intro reveal.
@@ -315,10 +315,22 @@ muteBtn.addEventListener("click", async () => {
   refreshMuteBtn();
 });
 
-// First user gesture — try to (re)start audio if autoplay was blocked.
-const unlockAudio = () => { tryStartAudio(); };
-window.addEventListener("pointerdown", unlockAudio, { once: true });
-window.addEventListener("keydown", unlockAudio, { once: true });
+// ------------- enter-the-canvas gate -------------
+const gateEl = document.getElementById("gate");
+const gateBtn = document.getElementById("gate-enter");
+
+async function enterCanvas() {
+  if (gateEl.classList.contains("gone")) return;
+  gateEl.classList.add("gone");
+  // The click is a user gesture, so we can start audio + intro safely now.
+  tryStartAudio();
+  setTimeout(() => playIntro(), 250);
+  setTimeout(() => { gateEl.style.display = "none"; }, 900);
+}
+gateBtn.addEventListener("click", enterCanvas);
+window.addEventListener("keydown", (e) => {
+  if (!gateEl.classList.contains("gone") && (e.key === "Enter" || e.key === " ")) enterCanvas();
+}, { capture: true });
 
 // ------------- intro cinematic -------------
 const HOME_POS = new THREE.Vector3(0, 18, 92);
@@ -468,8 +480,9 @@ function animate() {
     if (frame) frame.material.opacity = 0.45 + Math.sin(t * 1.3 + seed) * 0.12;
   }
 
-  // Core animation
+  // Core + sky ticks
   if (core.userData.tick) core.userData.tick(t);
+  if (skyTick) skyTick(t);
 
   // Hover detection
   raycaster.setFromCamera(pointer, camera);
@@ -515,13 +528,8 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-// Hide loader after first frame, then auto-play the cinematic on first visit.
+// Hide loader after first frame. The gate handles autoplay + intro on user click.
 requestAnimationFrame(() => {
   animate();
-  setTimeout(() => {
-    document.getElementById("loader").classList.add("gone");
-    let seen = false;
-    try { seen = sessionStorage.getItem("introSeen_v2") === "1"; } catch {}
-    if (!seen) setTimeout(playIntro, 250);
-  }, 350);
+  setTimeout(() => document.getElementById("loader").classList.add("gone"), 350);
 });
