@@ -89,6 +89,7 @@ renderer.domElement.addEventListener("pointermove", (ev) => {
 });
 
 renderer.domElement.addEventListener("click", () => {
+  if (introPlaying) return; // ignore clicks until the intro finishes
   if (!hovered) return;
   openItem(hovered.userData.item, hovered.userData.category);
 });
@@ -321,11 +322,13 @@ const gateBtn = document.getElementById("gate-enter");
 
 async function enterCanvas() {
   if (gateEl.classList.contains("gone")) return;
-  gateEl.classList.add("gone");
-  // The click is a user gesture, so we can start audio + intro safely now.
+  // Click is the user gesture — kick off audio and the intro on the same tick
+  // so the splash starts immediately. No timeouts: the user shouldn't be able
+  // to interact with the canvas before the camera has locked.
   tryStartAudio();
-  setTimeout(() => playIntro(), 250);
-  setTimeout(() => { gateEl.style.display = "none"; }, 900);
+  playIntro();
+  gateEl.classList.add("gone");
+  setTimeout(() => { gateEl.style.display = "none"; }, 500);
 }
 gateBtn.addEventListener("click", enterCanvas);
 window.addEventListener("keydown", (e) => {
