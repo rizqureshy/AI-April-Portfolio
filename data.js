@@ -1,5 +1,5 @@
-// GTM Enablement AI Portfolio — Living Canvas data manifest
-// Each item: { type, title, author, file?, url?, thumb?, blurb? }
+// GTM AI Canvas — Living Canvas data manifest
+// Each item: { type, title, author, file?, url? }
 // type: 'image' | 'video' | 'app' | 'deck'
 
 export const APP_NAME  = "GTM AI Canvas";
@@ -15,8 +15,15 @@ export const CATEGORIES = [
   { id: "courses",     label: "Courses & Lessons",  color: 0x7CFFB2, accent: "#7CFFB2" },
 ];
 
-// Helper to build a relative URL with proper encoding for spaces.
-const f = (name) => encodeURI(name);
+// Per-category folder map. Update here if folders ever move.
+const FOLDERS = {
+  art:        "assets/art/",
+  dashboards: "assets/dashboards/",
+  decks:      "assets/decks/",
+  animations: "assets/animations/",
+  courses:    "assets/courses/",
+};
+const f = (cat, name) => encodeURI(FOLDERS[cat] + name);
 
 export const ITEMS = {
   apps: [
@@ -39,60 +46,60 @@ export const ITEMS = {
   ],
 
   art: [
-    { type: "image", title: "AI Art",            author: "Shiran",         file: f("AI Art - Shiran.jpg") },
-    { type: "image", title: "AI Art",            author: "Calley Hood",    file: f("Calley Hood AI Art.png") },
-    { type: "image", title: "AI Art",            author: "Dalia Osorio",   file: f("Dalia Osorio AI Art.jpg") },
-    { type: "image", title: "AI Art",            author: "Eamonn Ward",    file: f("Eamonn Ward AI Art.jpg") },
-    { type: "image", title: "AI Art",            author: "Joseph Chan",    file: f("Joseph Chan AI Art.jpg") },
-    { type: "image", title: "AI Art",            author: "Justin Sit",     file: f("Justin Sit AI Art.jpg") },
-    { type: "image", title: "AI Art",            author: "Kelly Grover",   file: f("Kelly Grover AI Art.jpg") },
-    { type: "image", title: "AI Art",            author: "Lorna Joiner",   file: f("Lorna Joiner AI Art.jpg") },
-    { type: "image", title: "AI Art",            author: "Michael",        file: f("Michael AI Art.jpg") },
-    { type: "image", title: "AI Art",            author: "Paige Gregory",  file: f("Paige Gregory AI Art.jpg") },
-    { type: "image", title: "AI Art",            author: "Rizwan Qureshy", file: f("Rizwan Qureshy AI Art.jpg") },
-    { type: "image", title: "AI Art",            author: "Veronica John",  file: f("Veronica John AI Art.jpg") },
-    { type: "image", title: "Sketch to Render",  author: "Team",           file: f("AI Sketch to Render.jpg") },
-    { type: "image", title: "Design and Plan",   author: "Team",           file: f("Design and Plan.jpg") },
+    { type: "image", title: "AI Art",            author: "Shiran",         file: f("art", "AI Art - Shiran.jpg") },
+    { type: "image", title: "AI Art",            author: "Calley Hood",    file: f("art", "Calley Hood AI Art.png") },
+    { type: "image", title: "AI Art",            author: "Dalia Osorio",   file: f("art", "Dalia Osorio AI Art.jpg") },
+    { type: "image", title: "AI Art",            author: "Eamonn Ward",    file: f("art", "Eamonn Ward AI Art.jpg") },
+    { type: "image", title: "AI Art",            author: "Joseph Chan",    file: f("art", "Joseph Chan AI Art.jpg") },
+    { type: "image", title: "AI Art",            author: "Justin Sit",     file: f("art", "Justin Sit AI Art.jpg") },
+    { type: "image", title: "AI Art",            author: "Kelly Grover",   file: f("art", "Kelly Grover AI Art.jpg") },
+    { type: "image", title: "AI Art",            author: "Lorna Joiner",   file: f("art", "Lorna Joiner AI Art.jpg") },
+    { type: "image", title: "AI Art",            author: "Michael",        file: f("art", "Michael AI Art.jpg") },
+    { type: "image", title: "AI Art",            author: "Paige Gregory",  file: f("art", "Paige Gregory AI Art.jpg") },
+    { type: "image", title: "AI Art",            author: "Rizwan Qureshy", file: f("art", "Rizwan Qureshy AI Art.jpg") },
+    { type: "image", title: "AI Art",            author: "Veronica John",  file: f("art", "Veronica John AI Art.jpg") },
+    { type: "image", title: "Sketch to Render",  author: "Team",           file: f("art", "AI Sketch to Render.jpg") },
+    { type: "image", title: "Design and Plan",   author: "Team",           file: f("art", "Design and Plan.jpg") },
   ],
 
   dashboards: [
-    { type: "image", title: "Veronica's AI Dashboard",       author: "Veronica John",  file: f("AI Dashboard - Veronica.png") },
-    { type: "image", title: "AI ELC Dashboard",              author: "Team",           file: f("AI ELC Dashboard Pic.png") },
-    { type: "image", title: "AI Dashboard",                  author: "Team",           file: f("AI Pic - Dashboard.png") },
-    { type: "image", title: "Gemini Canvas Dashboard",       author: "Team",           file: f("Gemini Canvas Dashboard.png") },
-    { type: "image", title: "Partner Enablement Dashboard",  author: "Team",           file: f("Partner Enablement Dashboard.jpg") },
+    { type: "image", title: "Veronica's AI Dashboard",       author: "Veronica John",  file: f("dashboards", "AI Dashboard - Veronica.png") },
+    { type: "image", title: "AI ELC Dashboard",              author: "Team",           file: f("dashboards", "AI ELC Dashboard Pic.png") },
+    { type: "image", title: "AI Dashboard",                  author: "Team",           file: f("dashboards", "AI Pic - Dashboard.png") },
+    { type: "image", title: "Gemini Canvas Dashboard",       author: "Team",           file: f("dashboards", "Gemini Canvas Dashboard.png") },
+    { type: "image", title: "Partner Enablement Dashboard",  author: "Team",           file: f("dashboards", "Partner Enablement Dashboard.jpg") },
   ],
 
   decks: [
-    { type: "deck", title: "AI CRO Strategy Plan",                          author: "Rizwan Qureshy",     file: f("AI CRO Strategy Plan - Rizwan Qureshy.pptx") },
-    { type: "deck", title: "AI Strategy Deck",                              author: "Eamonn Ward",        file: f("AI Strategy - Eamonn Deck.pptx") },
-    { type: "deck", title: "AI Strategy",                                   author: "Morgan Gallegos",    file: f("AI Strategy - Morgan Gallegos.pptx") },
-    { type: "deck", title: "AI Strategy Deck",                              author: "Justin Sit",         file: f("AI Strategy Deck - Justin Sit.pptx") },
-    { type: "deck", title: "AI Strategy Deck — April 3rd",                  author: "Paige Gregory",      file: f("AI Strategy Deck_April 3rd - Paige Gregory.pptx") },
-    { type: "deck", title: "AI for GTM Enablement Services",                author: "Kelly Grover",       file: f("AI for GTM Enablement Services - Kelly Grover.pptx") },
-    { type: "deck", title: "AI in Our Team",                                author: "Calley Hood",        file: f("AI in our team - Calley Hood.pptx") },
-    { type: "deck", title: "AI Strategy for GTM Enablement",                author: "Isabelle Puller",    file: f("AI-Strategy-for-GTM-Enablement - Isabelle Puller.pptx") },
-    { type: "deck", title: "AI Strategy for Scalable Partner Enablement",   author: "Michael Bourgeois",  file: f("AI-Strategy-for-Scalable-Partner-Enablement - Michael Bourgeois.pptx") },
-    { type: "deck", title: "AI Strategy Deck",                              author: "Jason Sherwood",     file: f("AI_Strategy_Deck_claude - Jason Sherwood.pptx") },
-    { type: "deck", title: "AI in Our Team Strategy",                       author: "Lorna Joiner",       file: f("AI_in_Our_Team_Strategy - Lorna Joiner.pptx") },
+    { type: "deck", title: "AI CRO Strategy Plan",                          author: "Rizwan Qureshy",     file: f("decks", "AI CRO Strategy Plan - Rizwan Qureshy.pptx") },
+    { type: "deck", title: "AI Strategy Deck",                              author: "Eamonn Ward",        file: f("decks", "AI Strategy - Eamonn Deck.pptx") },
+    { type: "deck", title: "AI Strategy",                                   author: "Morgan Gallegos",    file: f("decks", "AI Strategy - Morgan Gallegos.pptx") },
+    { type: "deck", title: "AI Strategy Deck",                              author: "Justin Sit",         file: f("decks", "AI Strategy Deck - Justin Sit.pptx") },
+    { type: "deck", title: "AI Strategy Deck — April 3rd",                  author: "Paige Gregory",      file: f("decks", "AI Strategy Deck_April 3rd - Paige Gregory.pptx") },
+    { type: "deck", title: "AI for GTM Enablement Services",                author: "Kelly Grover",       file: f("decks", "AI for GTM Enablement Services - Kelly Grover.pptx") },
+    { type: "deck", title: "AI in Our Team",                                author: "Calley Hood",        file: f("decks", "AI in our team - Calley Hood.pptx") },
+    { type: "deck", title: "AI Strategy for GTM Enablement",                author: "Isabelle Puller",    file: f("decks", "AI-Strategy-for-GTM-Enablement - Isabelle Puller.pptx") },
+    { type: "deck", title: "AI Strategy for Scalable Partner Enablement",   author: "Michael Bourgeois",  file: f("decks", "AI-Strategy-for-Scalable-Partner-Enablement - Michael Bourgeois.pptx") },
+    { type: "deck", title: "AI Strategy Deck",                              author: "Jason Sherwood",     file: f("decks", "AI_Strategy_Deck_claude - Jason Sherwood.pptx") },
+    { type: "deck", title: "AI in Our Team Strategy",                       author: "Lorna Joiner",       file: f("decks", "AI_in_Our_Team_Strategy - Lorna Joiner.pptx") },
   ],
 
   animations: [
-    { type: "video", title: "Beyond the Chalkboard",       author: "Team",            file: f("Beyond_the_Chalkboard.mp4") },
-    { type: "video", title: "Did It My Way",               author: "Rizwan Qureshy",  file: f("Did it my Way - Rizwan Qureshy.mp4") },
-    { type: "video", title: "Folding Worries",             author: "Team",            file: f("Folding_Worries.mp4") },
-    { type: "video", title: "Number 1 and Nothing Less",   author: "Rizwan Qureshy",  file: f("Number 1 and Nothing Less - Rizwan Qureshy.mp4") },
-    { type: "image", title: "ACE Animation Concept",       author: "Team",            file: f("Animation Pic - ACE.png") },
+    { type: "video", title: "Beyond the Chalkboard",       author: "Team",            file: f("animations", "Beyond_the_Chalkboard.mp4") },
+    { type: "video", title: "Did It My Way",               author: "Rizwan Qureshy",  file: f("animations", "Did it my Way - Rizwan Qureshy.mp4") },
+    { type: "video", title: "Folding Worries",             author: "Team",            file: f("animations", "Folding_Worries.mp4") },
+    { type: "video", title: "Number 1 and Nothing Less",   author: "Rizwan Qureshy",  file: f("animations", "Number 1 and Nothing Less - Rizwan Qureshy.mp4") },
+    { type: "image", title: "ACE Animation Concept",       author: "Team",            file: f("animations", "Animation Pic - ACE.png") },
   ],
 
   courses: [
-    { type: "image", title: "AI Coding",                              author: "Team",          file: f("AI Coding.png") },
-    { type: "image", title: "AI Course — Google",                     author: "Team",          file: f("AI Course - Google.png") },
-    { type: "image", title: "AI Course — Media",                      author: "Team",          file: f("AI Course - Media.png") },
-    { type: "image", title: "MS AI Business Professional",            author: "Team",          file: f("AI Course Pic - MS AI Business Professional.png") },
-    { type: "image", title: "AI-Created Course",                      author: "Team",          file: f("AI Created Course.png") },
-    { type: "image", title: "AI Strategy Deck",                       author: "Eamonn Ward",   file: f("AI Deck Pic - Eamonn Ward.jpg") },
-    { type: "image", title: "Sales Academy Design",                   author: "Eamonn Ward",   file: f("Sales Academy Design Pic - Eamonn Ward.png") },
-    { type: "image", title: "Transform Workflows with Gen AI",        author: "Team",          file: f("Transform Business Workflows with Gen AI - Course Pic.png") },
+    { type: "image", title: "AI Coding",                              author: "Team",          file: f("courses", "AI Coding.png") },
+    { type: "image", title: "AI Course — Google",                     author: "Team",          file: f("courses", "AI Course - Google.png") },
+    { type: "image", title: "AI Course — Media",                      author: "Team",          file: f("courses", "AI Course - Media.png") },
+    { type: "image", title: "MS AI Business Professional",            author: "Team",          file: f("courses", "AI Course Pic - MS AI Business Professional.png") },
+    { type: "image", title: "AI-Created Course",                      author: "Team",          file: f("courses", "AI Created Course.png") },
+    { type: "image", title: "AI Strategy Deck",                       author: "Eamonn Ward",   file: f("courses", "AI Deck Pic - Eamonn Ward.jpg") },
+    { type: "image", title: "Sales Academy Design",                   author: "Eamonn Ward",   file: f("courses", "Sales Academy Design Pic - Eamonn Ward.png") },
+    { type: "image", title: "Transform Workflows with Gen AI",        author: "Team",          file: f("courses", "Transform Business Workflows with Gen AI - Course Pic.png") },
   ],
 };
