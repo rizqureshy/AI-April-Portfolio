@@ -20,6 +20,7 @@ let worldSpinDecay = 0;  // speed (rad/s); decays to zero after the reveal phase
 // ------------- stats / filters chrome -------------
 const totalItems = Object.values(ITEMS).reduce((n, arr) => n + arr.length, 0);
 document.getElementById("stat-items").textContent = totalItems;
+document.getElementById("stat-cats").textContent = CATEGORIES.length;
 
 const filtersEl = document.getElementById("filters");
 const allChip = chip("All", true);
