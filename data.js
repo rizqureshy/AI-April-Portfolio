@@ -13,6 +13,7 @@ export const CATEGORIES = [
   { id: "decks",       label: "Strategy Decks",     color: 0xE5202E, accent: "#E5202E" },
   { id: "animations",  label: "Animations & Films", color: 0xB388FF, accent: "#B388FF" },
   { id: "courses",     label: "Courses & Lessons",  color: 0x7CFFB2, accent: "#7CFFB2" },
+  { id: "portfolios",  label: "Portfolios & Code",  color: 0xFF8B6F, accent: "#FF8B6F" },
 ];
 
 // Per-category folder map. Update here if folders ever move.
@@ -29,14 +30,12 @@ export const ITEMS = {
   apps: [
     { type: "app", title: "AI Corporate Etiquette",                  author: "Team",                url: "https://html-course-builder.lovable.app/course.html" },
     { type: "app", title: "AI Essentials Course",                    author: "Calley Hood",         url: "https://aiessentialscourse.netlify.app/" },
-    { type: "app", title: "AI Portfolio",                            author: "Calley Hood",         url: "https://idbycalley.github.io/AI-Portfolio/" },
     { type: "app", title: "Artemis II — Dark Side of the Moon",      author: "Rizwan Qureshy",      url: "https://artemis-ii-rizqureshy.replit.app/" },
     { type: "app", title: "Artemis II — Animated Lesson",            author: "Michael Bourgeois",   url: "https://fastidious-dolphin-eeaefa.netlify.app/" },
     { type: "app", title: "Artemis II — Journey to the Moon",        author: "Lorna Joiner",        url: "https://claude.ai/public/artifacts/5ffb82c7-e185-4b9b-81a1-8339e21d6aac" },
     { type: "app", title: "Artemis II — Moon Mission Game",          author: "Michael Bourgeois",   url: "https://roaring-babka-f88861.netlify.app/" },
     { type: "app", title: "Artemis II — Mission Control",            author: "Calley Hood",         url: "https://jovial-donut-b99905.netlify.app/" },
     { type: "app", title: "Challenger Sales Coaching",               author: "Team",                url: "https://id-preview--e21af167-a47d-42ba-a00f-070b0144e10a.lovable.app/" },
-    { type: "app", title: "Fabric Sales Expert Course",              author: "Team",                url: "https://gemini.google.com/share/ab8b3dc4d1f6" },
     { type: "app", title: "Build-a-Band: Guitar & Piano",            author: "Ashley Mims",         url: "https://aprilaibuildaband.netlify.app/" },
     { type: "app", title: "Magic Guitar",                            author: "Calley Hood",         url: "https://strong-daffodil-a46c5c.netlify.app/" },
     { type: "app", title: "Order Taker — Partner Simulator",         author: "Michael Bourgeois",   url: "https://partner-simulator.netlify.app/" },
@@ -93,6 +92,9 @@ export const ITEMS = {
   ],
 
   courses: [
+    { type: "app",   title: "2026 CSM Compensation Plan",             author: "Morgan Gallegos", url: "https://equinixinc-my.sharepoint.com/personal/mogallegos_equinix_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fmogallegos%5Fequinix%5Fcom%2FDocuments%2F2025%20Comms%20Campaigns%2FAI%20Challenges%2Fequinix%5Fcsm%5Fcourse%2Ehtml&parent=%2Fpersonal%2Fmogallegos%5Fequinix%5Fcom%2FDocuments%2F2025%20Comms%20Campaigns%2FAI%20Challenges&ga=1" },
+    { type: "app",   title: "Equinix Fabric Sales Expert Course",     author: "Team",            url: "https://gemini.google.com/share/ab8b3dc4d1f6" },
+    { type: "app",   title: "ACE RAG Course",                         author: "Team",            url: "https://equinixinc.sharepoint.com/sites/GTMEnablement-All/Shared%20Documents/AI%20April%20Challenge/ace-rag-course.html" },
     { type: "image", title: "AI Coding",                              author: "Team",          file: f("courses", "AI Coding.png") },
     { type: "image", title: "AI Course — Google",                     author: "Team",          file: f("courses", "AI Course - Google.png") },
     { type: "image", title: "AI Course — Media",                      author: "Team",          file: f("courses", "AI Course - Media.png") },
@@ -101,5 +103,13 @@ export const ITEMS = {
     { type: "image", title: "AI Strategy Deck",                       author: "Eamonn Ward",   file: f("courses", "AI Deck Pic - Eamonn Ward.jpg") },
     { type: "image", title: "Sales Academy Design",                   author: "Eamonn Ward",   file: f("courses", "Sales Academy Design Pic - Eamonn Ward.png") },
     { type: "image", title: "Transform Workflows with Gen AI",        author: "Team",          file: f("courses", "Transform Business Workflows with Gen AI - Course Pic.png") },
+  ],
+
+  portfolios: [
+    { type: "app", title: "AI Portfolio",            author: "Calley Hood",       url: "https://idbycalley.github.io/AI-Portfolio/" },
+    { type: "app", title: "AI Portfolio",            author: "Michael Bourgeois", url: "https://mkbourgeois.github.io/portfolio/" },
+    { type: "app", title: "GitHub — IDByCalley",     author: "Calley Hood",       url: "https://github.com/IDByCalley" },
+    { type: "app", title: "GitHub — Portfolio",     author: "Michael Bourgeois", url: "https://github.com/MKBourgeois/portfolio" },
+    { type: "app", title: "GitHub — My-Repository", author: "Elena Cazan",        url: "https://github.com/AlevC3/My-Repository" },
   ],
 };
