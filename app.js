@@ -60,8 +60,12 @@ function applyFilter(catId) {
 }
 
 // ------------- top action buttons -------------
-let autoSpin = false;
-document.getElementById("btn-spin").addEventListener("click", (e) => {
+// Auto-orbit on by default — gives the canvas a "living" feel when no one's interacting.
+let autoSpin = true;
+controls.autoRotate = true;
+const spinBtn = document.getElementById("btn-spin");
+spinBtn.classList.add("active");
+spinBtn.addEventListener("click", (e) => {
   autoSpin = !autoSpin;
   controls.autoRotate = autoSpin;
   e.currentTarget.classList.toggle("active", autoSpin);
@@ -441,6 +445,8 @@ function endIntro(skipped = false) {
   }
   skipBtn.classList.remove("show");
   controls.enabled = true;
+  // Restore the user's auto-orbit preference once the cinematic releases the camera.
+  controls.autoRotate = autoSpin;
   if (!skipped) {
     // Post-splash: show the title as a slim top banner above the canvas, not over it.
     hero.classList.add("compact");
