@@ -10,8 +10,8 @@ export const CATEGORIES = [
   { id: "apps",        label: "Apps & Tools",       color: 0x6FF7FF, accent: "#6FF7FF" },
   { id: "art",         label: "AI Art Gallery",     color: 0xFF6FB5, accent: "#FF6FB5" },
   { id: "dashboards",  label: "Dashboards",         color: 0xFFC857, accent: "#FFC857" },
-  { id: "decks",       label: "Strategy Decks",     color: 0xE5202E, accent: "#E5202E" },
-  { id: "animations",  label: "Animations & Films", color: 0xB388FF, accent: "#B388FF" },
+  { id: "decks",       label: "AI Decks",                    color: 0xE5202E, accent: "#E5202E" },
+  { id: "animations",  label: "AI Animations, Music & Films", color: 0xB388FF, accent: "#B388FF" },
   { id: "courses",     label: "Courses & Lessons",  color: 0x7CFFB2, accent: "#7CFFB2" },
   { id: "portfolios",  label: "Portfolios & Code",  color: 0xFF8B6F, accent: "#FF8B6F" },
 ];
