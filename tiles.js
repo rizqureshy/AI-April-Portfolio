@@ -111,6 +111,21 @@ function makeTile(item, cat) {
     frontMat.needsUpdate = true;
   }
 
+  // If a deck has a pre-rendered first-slide thumbnail, swap it in as soon as it loads.
+  if (item.type === "deck" && item.thumb) {
+    texLoader.load(
+      item.thumb,
+      (tex) => {
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.anisotropy = 8;
+        frontMat.map = composeImageOnCard(tex.image, item, cat);
+        frontMat.needsUpdate = true;
+      },
+      undefined,
+      () => { /* missing thumbnail — keep slide-style card */ }
+    );
+  }
+
   const setMap = (tex) => { frontMat.map = tex; frontMat.needsUpdate = true; };
 
   // Async: load real previews per type.

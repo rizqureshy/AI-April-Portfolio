@@ -70,17 +70,17 @@ export const ITEMS = {
   ],
 
   decks: [
-    { type: "deck", title: "AI CRO Strategy Plan",                          author: "Rizwan Qureshy",     file: f("decks", "AI CRO Strategy Plan - Rizwan Qureshy.pptx") },
-    { type: "deck", title: "AI Strategy Deck",                              author: "Eamonn Ward",        file: f("decks", "AI Strategy - Eamonn Deck.pptx") },
-    { type: "deck", title: "AI Strategy",                                   author: "Morgan Gallegos",    file: f("decks", "AI Strategy - Morgan Gallegos.pptx") },
-    { type: "deck", title: "AI Strategy Deck",                              author: "Justin Sit",         file: f("decks", "AI Strategy Deck - Justin Sit.pptx") },
-    { type: "deck", title: "AI Strategy Deck — April 3rd",                  author: "Paige Gregory",      file: f("decks", "AI Strategy Deck_April 3rd - Paige Gregory.pptx") },
-    { type: "deck", title: "AI for GTM Enablement Services",                author: "Kelly Grover",       file: f("decks", "AI for GTM Enablement Services - Kelly Grover.pptx") },
-    { type: "deck", title: "AI in Our Team",                                author: "Calley Hood",        file: f("decks", "AI in our team - Calley Hood.pptx") },
-    { type: "deck", title: "AI Strategy for GTM Enablement",                author: "Isabelle Puller",    file: f("decks", "AI-Strategy-for-GTM-Enablement - Isabelle Puller.pptx") },
-    { type: "deck", title: "AI Strategy for Scalable Partner Enablement",   author: "Michael Bourgeois",  file: f("decks", "AI-Strategy-for-Scalable-Partner-Enablement - Michael Bourgeois.pptx") },
-    { type: "deck", title: "AI Strategy Deck",                              author: "Jason Sherwood",     file: f("decks", "AI_Strategy_Deck_claude - Jason Sherwood.pptx") },
-    { type: "deck", title: "AI in Our Team Strategy",                       author: "Lorna Joiner",       file: f("decks", "AI_in_Our_Team_Strategy - Lorna Joiner.pptx") },
+    { type: "deck", title: "AI CRO Strategy Plan",                          author: "Rizwan Qureshy",     file: f("decks", "AI CRO Strategy Plan - Rizwan Qureshy.pptx"),                          thumb: f("decks", "thumbs/AI CRO Strategy Plan - Rizwan Qureshy.png") },
+    { type: "deck", title: "AI Strategy Deck",                              author: "Eamonn Ward",        file: f("decks", "AI Strategy - Eamonn Deck.pptx"),                                    thumb: f("decks", "thumbs/AI Strategy - Eamonn Deck.png") },
+    { type: "deck", title: "AI Strategy",                                   author: "Morgan Gallegos",    file: f("decks", "AI Strategy - Morgan Gallegos.pptx"),                                thumb: f("decks", "thumbs/AI Strategy - Morgan Gallegos.png") },
+    { type: "deck", title: "AI Strategy Deck",                              author: "Justin Sit",         file: f("decks", "AI Strategy Deck - Justin Sit.pptx"),                                thumb: f("decks", "thumbs/AI Strategy Deck - Justin Sit.png") },
+    { type: "deck", title: "AI Strategy Deck — April 3rd",                  author: "Paige Gregory",      file: f("decks", "AI Strategy Deck_April 3rd - Paige Gregory.pptx"),                   thumb: f("decks", "thumbs/AI Strategy Deck_April 3rd - Paige Gregory.png") },
+    { type: "deck", title: "AI for GTM Enablement Services",                author: "Kelly Grover",       file: f("decks", "AI for GTM Enablement Services - Kelly Grover.pptx"),                thumb: f("decks", "thumbs/AI for GTM Enablement Services - Kelly Grover.png") },
+    { type: "deck", title: "AI in Our Team",                                author: "Calley Hood",        file: f("decks", "AI in our team - Calley Hood.pptx"),                                 thumb: f("decks", "thumbs/AI in our team - Calley Hood.png") },
+    { type: "deck", title: "AI Strategy for GTM Enablement",                author: "Isabelle Puller",    file: f("decks", "AI-Strategy-for-GTM-Enablement - Isabelle Puller.pptx"),             thumb: f("decks", "thumbs/AI-Strategy-for-GTM-Enablement - Isabelle Puller.png") },
+    { type: "deck", title: "AI Strategy for Scalable Partner Enablement",   author: "Michael Bourgeois",  file: f("decks", "AI-Strategy-for-Scalable-Partner-Enablement - Michael Bourgeois.pptx"), thumb: f("decks", "thumbs/AI-Strategy-for-Scalable-Partner-Enablement - Michael Bourgeois.png") },
+    { type: "deck", title: "AI Strategy Deck",                              author: "Jason Sherwood",     file: f("decks", "AI_Strategy_Deck_claude - Jason Sherwood.pptx"),                      thumb: f("decks", "thumbs/AI_Strategy_Deck_claude - Jason Sherwood.png") },
+    { type: "deck", title: "AI in Our Team Strategy",                       author: "Lorna Joiner",       file: f("decks", "AI_in_Our_Team_Strategy - Lorna Joiner.pptx"),                       thumb: f("decks", "thumbs/AI_in_Our_Team_Strategy - Lorna Joiner.png") },
   ],
 
   animations: [
