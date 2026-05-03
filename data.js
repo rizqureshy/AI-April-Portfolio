@@ -84,6 +84,8 @@ export const ITEMS = {
   ],
 
   animations: [
+    { type: "video", title: "AI Super Hero",               author: "Team",            file: f("animations", "AI Super Hero.mp4") },
+    { type: "video", title: "AI Eamonn",                   author: "Eamonn Ward",     file: f("animations", "AI Eamonn.mp4") },
     { type: "video", title: "Beyond the Chalkboard",       author: "Team",            file: f("animations", "Beyond_the_Chalkboard.mp4") },
     { type: "video", title: "Did It My Way",               author: "Rizwan Qureshy",  file: f("animations", "Did it my Way - Rizwan Qureshy.mp4") },
     { type: "video", title: "Folding Worries",             author: "Team",            file: f("animations", "Folding_Worries.mp4") },
