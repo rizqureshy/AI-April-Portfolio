@@ -332,6 +332,9 @@ muteBtn.addEventListener("click", async () => {
 });
 
 // ------------- presentation mode -------------
+let liftedTile = null;     // tile currently raised + scaled for the popup
+let spinAnim   = null;     // world-rotation animation state
+let liftAnim   = null;     // per-tile lift / reset animation state
 const panelLeft = document.getElementById("panel-left");
 const popupEl    = document.getElementById("pres-popup");
 const popupImgs  = document.getElementById("pres-popup-imgs");
@@ -381,13 +384,55 @@ function selectPresenter(id) {
   if (!found) return;
   const target = presentersApi.cameraTargetFor(id);
   if (!target) return;
+  const tile = target.tile;
 
-  // Pause auto-orbit during the fly-to so the camera lands cleanly on the tile.
+  // Pause auto-orbit during the spin so the world reads as a single intentional motion.
   controls.autoRotate = false;
-  flyCameraTo(target.camPos, target.lookAt, 1100);
 
-  // Open the popup a beat after the camera starts moving.
-  setTimeout(() => openPresenterPopup(found.member, found.group), 350);
+  // Snap any previously-lifted tile back to its base so it doesn't visibly hang there.
+  if (liftedTile && liftedTile !== tile) {
+    liftedTile.position.y = liftedTile.userData.basePos.y;
+    liftedTile.scale.setScalar(1);
+    liftedTile = null;
+  }
+
+  // Fly the camera back to HOME in parallel — the world spin math assumes the
+  // camera is looking down the +Z axis at the origin.
+  flyCameraTo(HOME_POS, HOME_TARGET, 900);
+
+  // Compute the world rotation that lands this tile at angle 90° in XZ
+  // (directly facing the camera at +Z). Three.js Y rotation by α takes a point
+  // at angle θ in XZ to angle θ - α, so we need α = θ - π/2.
+  const lp = tile.position; // local position in the world group
+  const localAngle = Math.atan2(lp.z, lp.x);
+  let finalRot = localAngle - Math.PI / 2;
+  // Always spin forward (positive) and add 2 full rotations for drama.
+  while (finalRot < world.rotation.y + 0.3) finalRot += 2 * Math.PI;
+  finalRot += 2 * 2 * Math.PI;
+
+  spinAnim = {
+    from: world.rotation.y,
+    to: finalRot,
+    t0: performance.now(),
+    dur: 1100,
+    onComplete: () => {
+      // Lift the tile out toward the camera once it's facing us.
+      liftedTile = tile;
+      liftAnim = {
+        tile,
+        startY: tile.position.y,
+        targetY: tile.userData.basePos.y + 5,
+        startScale: tile.scale.x,
+        targetScale: 1.5,
+        t0: performance.now(),
+        dur: 420,
+      };
+    },
+  };
+
+  // Fade the popup in toward the end of the spin so it's already there when
+  // the tile finishes rising.
+  setTimeout(() => openPresenterPopup(found.member, found.group), 850);
 }
 
 function openPresenterPopup(member, group) {
@@ -425,6 +470,21 @@ function openPresenterPopup(member, group) {
 function closePresenterPopup() {
   popupEl.classList.remove("show");
   panelLeft.querySelectorAll(".presenter-row").forEach(r => r.classList.remove("active"));
+  // Lower the lifted tile back to its base.
+  if (liftedTile) {
+    liftAnim = {
+      tile: liftedTile,
+      startY: liftedTile.position.y,
+      targetY: liftedTile.userData.basePos.y,
+      startScale: liftedTile.scale.x,
+      targetScale: 1,
+      t0: performance.now(),
+      dur: 300,
+    };
+    liftedTile = null;
+  }
+  // Restore the user's auto-orbit preference.
+  controls.autoRotate = autoSpin;
 }
 
 // Presentation Mode toggle (top-bar chip)
@@ -618,6 +678,29 @@ function animate() {
     world.rotation.y += worldSpinDecay * dt;
   }
 
+  // Presentation: dramatic spin to land the selected tile facing the camera.
+  if (spinAnim) {
+    const k = Math.min(1, (performance.now() - spinAnim.t0) / spinAnim.dur);
+    const e = 1 - Math.pow(1 - k, 3); // ease-out cubic
+    world.rotation.y = spinAnim.from + (spinAnim.to - spinAnim.from) * e;
+    if (k >= 1) {
+      const cb = spinAnim.onComplete;
+      spinAnim = null;
+      if (cb) cb();
+    }
+  }
+
+  // Presentation: lift (or reset) the selected presenter tile.
+  if (liftAnim) {
+    const k = Math.min(1, (performance.now() - liftAnim.t0) / liftAnim.dur);
+    const e = 1 - Math.pow(1 - k, 3);
+    const lt = liftAnim.tile;
+    lt.position.y = liftAnim.startY + (liftAnim.targetY - liftAnim.startY) * e;
+    const s = liftAnim.startScale + (liftAnim.targetScale - liftAnim.startScale) * e;
+    lt.scale.setScalar(s);
+    if (k >= 1) liftAnim = null;
+  }
+
   // Bobbing on tiles (their basePos was captured before re-parenting, so it's still accurate locally)
   for (let i = 0; i < tiles.length; i++) {
     const tile = tiles[i];
@@ -628,10 +711,13 @@ function animate() {
     const frame = tile.userData.frame;
     if (frame) frame.material.opacity = 0.45 + Math.sin(t * 1.3 + seed) * 0.12;
   }
-  // Presenter tile bobbing
-  presentersApi.group.children.forEach((t) => {
-    if (!t.userData.basePos) return;
-    t.position.y = t.userData.basePos.y + Math.sin((clock.elapsedTime * 0.6) + t.userData.seed) * 0.18;
+  // Presenter tile bobbing — skip the lifted tile and any tile currently
+  // mid-animation so we don't fight the spin/lift logic.
+  presentersApi.group.children.forEach((tt) => {
+    if (!tt.userData.basePos) return;
+    if (tt === liftedTile) return;
+    if (liftAnim && liftAnim.tile === tt) return;
+    tt.position.y = tt.userData.basePos.y + Math.sin((clock.elapsedTime * 0.6) + tt.userData.seed) * 0.18;
   });
 
   // Core + sky ticks
