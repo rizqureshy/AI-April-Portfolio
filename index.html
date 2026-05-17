@@ -110,19 +110,27 @@
   .presenter-row .gr{font-size:10px;color:var(--muted);letter-spacing:.04em;margin-top:2px}
   .panel-foot{position:absolute;left:18px;right:18px;bottom:18px;font-size:10px;color:#5d6c8a;letter-spacing:.12em;text-transform:uppercase}
 
-  /* Transparent presenter popup */
-  .pres-popup{position:fixed;right:24px;top:50%;transform:translateY(-50%) translateX(20px);z-index:7;max-width:380px;width:min(380px,calc(100vw - 360px));background:linear-gradient(180deg,rgba(15,18,32,.72),rgba(10,12,22,.72));border:1px solid rgba(255,139,111,.35);border-radius:18px;backdrop-filter:blur(14px);box-shadow:0 30px 80px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.04), 0 0 40px rgba(255,139,111,.18);opacity:0;pointer-events:none;transition:opacity .35s ease, transform .35s ease}
-  .pres-popup.show{opacity:1;pointer-events:auto;transform:translateY(-50%) translateX(0)}
-  .pres-popup-hero{position:relative;height:300px;border-radius:18px 18px 0 0;overflow:hidden;background:#1a1230}
-  .pres-popup-hero img{width:100%;height:100%;object-fit:cover;display:block}
-  .pres-popup-hero::after{content:"";position:absolute;inset:auto 0 0 0;height:120px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(15,18,32,.92))}
-  .pres-popup-body{padding:18px 22px 22px}
-  .pres-popup-eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#FF8B6F;font-weight:700;margin-bottom:6px}
-  .pres-popup-name{margin:0 0 4px;font-size:22px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
-  .pres-popup-group{color:var(--muted);font-size:12px;margin-bottom:14px}
-  .pres-popup-desc{color:#cdd6e8;font-size:13.5px;line-height:1.55}
-  .pres-popup-close{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);color:#fff;cursor:pointer;display:grid;place-items:center;font-size:14px;line-height:1;transition:background .15s ease}
-  .pres-popup-close:hover{background:rgba(0,0,0,.7)}
+  /* Wide horizontal presenter overlay — image(s) on the left, transparent text on the right */
+  .pres-popup{position:fixed;left:calc(50% + 150px);transform:translateX(-50%) translateY(20px);bottom:34px;z-index:7;display:flex;width:min(900px,calc(100vw - 360px));max-height:46vh;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,rgba(15,18,32,.45),rgba(10,12,22,.20) 60%,rgba(10,12,22,.05));border:1px solid rgba(255,139,111,.35);backdrop-filter:blur(10px);box-shadow:0 30px 80px rgba(0,0,0,.5), 0 0 60px rgba(255,139,111,.18);opacity:0;pointer-events:none;transition:opacity .35s ease, transform .35s ease}
+  .pres-popup.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+  /* If the left presentation panel is closed, just center the popup. */
+  body:not(.present-on) .pres-popup{left:50%}
+  .pres-popup-imgs{flex:0 0 42%;display:grid;background:#0a0612;min-height:300px}
+  .pres-popup-imgs.single{grid-template-columns:1fr;grid-template-rows:1fr}
+  .pres-popup-imgs.group{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px}
+  .pres-popup-imgs img{width:100%;height:100%;object-fit:cover;display:block}
+  .pres-popup-info{flex:1;padding:30px 34px;display:flex;flex-direction:column;justify-content:center;background:transparent;color:var(--ink);min-width:0}
+  .pres-popup-eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#FF8B6F;font-weight:700;margin-bottom:10px;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+  .pres-popup-name{margin:0 0 8px;font-size:28px;font-weight:800;letter-spacing:-.01em;color:#fff;text-shadow:0 1px 12px rgba(0,0,0,.7);line-height:1.15}
+  .pres-popup-group{color:#cdd6e8;font-size:13px;margin-bottom:18px;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+  .pres-popup-desc{color:#eaf2ff;font-size:15px;line-height:1.6;text-shadow:0 1px 6px rgba(0,0,0,.55);overflow-y:auto;flex:1;padding-right:6px}
+  .pres-popup-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);color:#fff;cursor:pointer;display:grid;place-items:center;font-size:16px;line-height:1;transition:background .15s ease;z-index:2}
+  .pres-popup-close:hover{background:rgba(0,0,0,.8)}
+  @media (max-width:880px){
+    .pres-popup{width:calc(100vw - 32px);left:50%;flex-direction:column;max-height:70vh}
+    body.present-on .pres-popup{left:50%}
+    .pres-popup-imgs{flex:0 0 220px;min-height:220px}
+  }
 
   /* Enter-the-canvas gate */
   .gate{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:24px;background:radial-gradient(900px 600px at 50% 40%, rgba(35,18,42,.85) 0%, rgba(8,8,18,.92) 60%, rgba(0,0,0,.96) 100%);backdrop-filter:blur(6px);transition:opacity .35s ease, transform .35s ease;opacity:1}
@@ -213,16 +221,14 @@
 <aside class="panel-left" id="panel-left" aria-label="Presenter roster"></aside>
 
 <div class="pres-popup" id="pres-popup" role="dialog" aria-live="polite">
-  <div class="pres-popup-hero">
-    <img id="pres-img" alt="" />
-    <button class="pres-popup-close" id="pres-close" aria-label="Close">×</button>
-  </div>
-  <div class="pres-popup-body">
+  <div class="pres-popup-imgs" id="pres-popup-imgs"></div>
+  <div class="pres-popup-info">
     <div class="pres-popup-eyebrow" id="pres-eyebrow">PRESENTER</div>
     <h3 class="pres-popup-name" id="pres-name">—</h3>
     <div class="pres-popup-group" id="pres-group">—</div>
     <div class="pres-popup-desc" id="pres-desc">—</div>
   </div>
+  <button class="pres-popup-close" id="pres-close" aria-label="Close">×</button>
 </div>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true">
