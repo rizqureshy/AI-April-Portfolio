@@ -2,18 +2,23 @@
 import * as THREE from "three";
 import { createScene } from "./scene.js";
 import { buildTiles } from "./tiles.js";
-import { CATEGORIES, ITEMS, TEAM_NAME, APP_NAME } from "./data.js";
+import { buildPresenters } from "./presenters.js";
+import { CATEGORIES, ITEMS, TEAM_NAME, APP_NAME, PRESENTERS } from "./data.js";
 
 // ------------- bootstrap scene -------------
 const container = document.body;
 const { scene, camera, renderer, controls, core, skyTick } = createScene(container);
 const { tiles, labelGroup } = buildTiles(scene);
+const presentersApi = buildPresenters(scene);
 
 // World pivot: a single group we can spin during the intro reveal.
 const world = new THREE.Group();
 scene.add(world);
 [...tiles].forEach((t) => world.attach(t));
 labelGroup.children.slice().forEach((l) => world.attach(l));
+// Presenters are part of the world so they spin in the reveal and are
+// reachable by the same camera fly-to mechanism used for the main clusters.
+world.attach(presentersApi.group);
 let worldSpin = 0;       // continuous Y rotation applied each frame
 let worldSpinDecay = 0;  // speed (rad/s); decays to zero after the reveal phase
 

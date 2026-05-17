@@ -23,8 +23,37 @@ const FOLDERS = {
   decks:      "assets/decks/",
   animations: "assets/animations/",
   courses:    "assets/courses/",
+  presenters: "assets/presenters/",
 };
 const f = (cat, name) => encodeURI(FOLDERS[cat] + name);
+
+// Presenter roster for Presentation Mode. Each member shows up as a tile in
+// the canvas and as a row in the left panel. Photos prefer existing AI Art
+// portraits; placeholder initials-avatars cover everyone else.
+export const PRESENTERS = [
+  {
+    id: "capstone",
+    group: "Capstone Presentation",
+    members: [
+      { id: "isabelle-puller", name: "Isabelle Puller", photo: f("presenters", "isabelle-puller.png"), description: "Placeholder description. To be updated with what Isabelle will share." },
+      { id: "ashley-mims",     name: "Ashley Mims",     photo: f("presenters", "ashley-mims.png"),     description: "Placeholder description. To be updated with what Ashley will share." },
+      { id: "lorna-joiner",    name: "Lorna Joiner",    photo: f("art", "Lorna Joiner AI Art.jpg"),    description: "Placeholder description. To be updated with what Lorna will share." },
+      { id: "dalia-osorio",    name: "Dalia Osorio",    photo: f("art", "Dalia Osorio AI Art.jpg"),    description: "Placeholder description. To be updated with what Dalia will share." },
+    ],
+  },
+  {
+    id: "projects",
+    group: "Project Presentations & Key Learning Insights",
+    members: [
+      { id: "michael-bourgeois", name: "Michael Bourgeois", photo: f("art", "Michael AI Art.jpg"),               description: "Placeholder description. To be updated with what Michael will share." },
+      { id: "calley-hood",       name: "Calley Hood",       photo: f("art", "Calley Hood AI Art.png"),           description: "Placeholder description. To be updated with what Calley will share." },
+      { id: "elena-cazan",       name: "Elena Cazan",       photo: f("presenters", "elena-cazan.png"),           description: "Placeholder description. To be updated with what Elena will share." },
+      { id: "sol-helou",         name: "Sol Helou",         photo: f("presenters", "sol-helou.png"),             description: "Placeholder description. To be updated with what Sol will share." },
+      { id: "jason-sherwood",    name: "Jason Sherwood",    photo: f("presenters", "jason-sherwood.png"),        description: "Placeholder description. To be updated with what Jason will share." },
+      { id: "veronica-john",     name: "Veronica John",     photo: f("art", "Veronica John AI Art.jpg"),         description: "Placeholder description. To be updated with what Veronica will share." },
+    ],
+  },
+];
 
 export const ITEMS = {
   apps: [
