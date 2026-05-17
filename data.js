@@ -34,16 +34,19 @@ export const PRESENTERS = [
   {
     id: "capstone",
     group: "Capstone Presentation",
+    display: "group",
+    description: "Placeholder description for the Capstone team's joint presentation. Update with the team's shared topic, approach, and key insights.",
     members: [
-      { id: "isabelle-puller", name: "Isabelle Puller", photo: f("presenters", "isabelle-puller.png"), description: "Placeholder description. To be updated with what Isabelle will share." },
-      { id: "ashley-mims",     name: "Ashley Mims",     photo: f("presenters", "ashley-mims.png"),     description: "Placeholder description. To be updated with what Ashley will share." },
-      { id: "lorna-joiner",    name: "Lorna Joiner",    photo: f("art", "Lorna Joiner AI Art.jpg"),    description: "Placeholder description. To be updated with what Lorna will share." },
-      { id: "dalia-osorio",    name: "Dalia Osorio",    photo: f("art", "Dalia Osorio AI Art.jpg"),    description: "Placeholder description. To be updated with what Dalia will share." },
+      { id: "isabelle-puller", name: "Isabelle Puller", photo: f("presenters", "isabelle-puller.png") },
+      { id: "ashley-mims",     name: "Ashley Mims",     photo: f("presenters", "ashley-mims.png") },
+      { id: "lorna-joiner",    name: "Lorna Joiner",    photo: f("art", "Lorna Joiner AI Art.jpg") },
+      { id: "dalia-osorio",    name: "Dalia Osorio",    photo: f("art", "Dalia Osorio AI Art.jpg") },
     ],
   },
   {
     id: "projects",
     group: "Project Presentations & Key Learning Insights",
+    display: "individual",
     members: [
       { id: "michael-bourgeois", name: "Michael Bourgeois", photo: f("art", "Michael AI Art.jpg"),               description: "Placeholder description. To be updated with what Michael will share." },
       { id: "calley-hood",       name: "Calley Hood",       photo: f("art", "Calley Hood AI Art.png"),           description: "Placeholder description. To be updated with what Calley will share." },

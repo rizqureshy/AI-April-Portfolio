@@ -333,11 +333,12 @@ muteBtn.addEventListener("click", async () => {
 
 // ------------- presentation mode -------------
 const panelLeft = document.getElementById("panel-left");
-const popupEl   = document.getElementById("pres-popup");
-const popupImg  = document.getElementById("pres-img");
-const popupName = document.getElementById("pres-name");
+const popupEl    = document.getElementById("pres-popup");
+const popupImgs  = document.getElementById("pres-popup-imgs");
+const popupEyebrow = document.getElementById("pres-eyebrow");
+const popupName  = document.getElementById("pres-name");
 const popupGroup = document.getElementById("pres-group");
-const popupDesc = document.getElementById("pres-desc");
+const popupDesc  = document.getElementById("pres-desc");
 document.getElementById("pres-close").addEventListener("click", () => closePresenterPopup());
 
 // Build the left-panel roster from PRESENTERS data.
@@ -390,11 +391,34 @@ function selectPresenter(id) {
 }
 
 function openPresenterPopup(member, group) {
-  popupImg.src = member.photo;
-  popupImg.alt = member.name;
-  popupName.textContent = member.name;
-  popupGroup.textContent = group.group;
-  popupDesc.textContent = member.description;
+  popupImgs.innerHTML = "";
+
+  if (group.display === "group") {
+    // 2x2 photo grid + shared group description
+    popupImgs.className = "pres-popup-imgs group";
+    for (const m of group.members) {
+      const img = document.createElement("img");
+      img.src = m.photo;
+      img.alt = m.name;
+      img.loading = "lazy";
+      popupImgs.appendChild(img);
+    }
+    popupEyebrow.textContent = "GROUP PRESENTATION";
+    popupName.textContent = group.group;
+    popupGroup.textContent = group.members.map(m => m.name).join(" · ");
+    popupDesc.textContent = group.description || "";
+  } else {
+    // Single portrait + individual description
+    popupImgs.className = "pres-popup-imgs single";
+    const img = document.createElement("img");
+    img.src = member.photo;
+    img.alt = member.name;
+    popupImgs.appendChild(img);
+    popupEyebrow.textContent = "PRESENTER";
+    popupName.textContent = member.name;
+    popupGroup.textContent = group.group;
+    popupDesc.textContent = member.description || "";
+  }
   popupEl.classList.add("show");
 }
 
@@ -410,6 +434,7 @@ presentBtn.addEventListener("click", () => {
   presentationMode = !presentationMode;
   presentBtn.classList.toggle("active", presentationMode);
   panelLeft.classList.toggle("show", presentationMode);
+  document.body.classList.toggle("present-on", presentationMode);
   if (!presentationMode) closePresenterPopup();
 });
 
@@ -417,12 +442,17 @@ presentBtn.addEventListener("click", () => {
 // (Hook into the existing canvas click handler — done via a small change below.)
 function tryHandlePresenterClick(hitObject) {
   let n = hitObject;
-  while (n && !n.userData.presenter) n = n.parent;
+  while (n && !n.userData.slot) n = n.parent;
   if (!n) return false;
-  const id = n.userData.presenter.id;
-  // Highlight the corresponding row in the panel if it's open
+  const slot = n.userData.slot;
+  // For group tiles, default to the first member's id; for single, use the member id.
+  const id = slot.kind === "group" ? slot.members[0].id : slot.member.id;
   panelLeft.querySelectorAll(".presenter-row").forEach(r => {
-    r.classList.toggle("active", r.dataset.id === id);
+    if (slot.kind === "group") {
+      r.classList.toggle("active", slot.members.some(m => m.id === r.dataset.id));
+    } else {
+      r.classList.toggle("active", r.dataset.id === id);
+    }
   });
   selectPresenter(id);
   return true;
@@ -615,9 +645,9 @@ function animate() {
   let hitPres = null;
   if (hits.length) {
     let n = hits[0].object;
-    while (n && !(n.userData.item || n.userData.presenter)) n = n.parent;
+    while (n && !(n.userData.item || n.userData.slot)) n = n.parent;
     if (n && n.visible) {
-      if (n.userData.presenter) hitPres = n;
+      if (n.userData.slot) hitPres = n;
       else hit = n;
     }
   }
@@ -648,8 +678,9 @@ function animate() {
       hoveredPresenter.userData.frame.material.color.set(0xffffff);
       hoveredPresenter.scale.setScalar(1.08);
       tipEl.style.opacity = "1";
-      tipTitle.textContent = hoveredPresenter.userData.presenter.name;
-      tipBy.textContent = "Presenter · click to focus";
+      const s = hoveredPresenter.userData.slot;
+      tipTitle.textContent = s.kind === "group" ? s.group.group : s.member.name;
+      tipBy.textContent = s.kind === "group" ? "Group presentation · click to focus" : "Presenter · click to focus";
       document.body.style.cursor = "pointer";
     }
   }
