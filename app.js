@@ -2,18 +2,23 @@
 import * as THREE from "three";
 import { createScene } from "./scene.js";
 import { buildTiles } from "./tiles.js";
-import { CATEGORIES, ITEMS, TEAM_NAME, APP_NAME } from "./data.js";
+import { buildPresenters } from "./presenters.js";
+import { CATEGORIES, ITEMS, TEAM_NAME, APP_NAME, PRESENTERS } from "./data.js";
 
 // ------------- bootstrap scene -------------
 const container = document.body;
 const { scene, camera, renderer, controls, core, skyTick } = createScene(container);
 const { tiles, labelGroup } = buildTiles(scene);
+const presentersApi = buildPresenters(scene);
 
 // World pivot: a single group we can spin during the intro reveal.
 const world = new THREE.Group();
 scene.add(world);
 [...tiles].forEach((t) => world.attach(t));
 labelGroup.children.slice().forEach((l) => world.attach(l));
+// Presenters are part of the world so they spin in the reveal and are
+// reachable by the same camera fly-to mechanism used for the main clusters.
+world.attach(presentersApi.group);
 let worldSpin = 0;       // continuous Y rotation applied each frame
 let worldSpinDecay = 0;  // speed (rad/s); decays to zero after the reveal phase
 
@@ -81,6 +86,7 @@ document.getElementById("btn-about").addEventListener("click", () => {
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 let hovered = null;
+let hoveredPresenter = null;
 
 const tipEl = document.getElementById("tip");
 const tipTitle = document.getElementById("tip-title");
@@ -95,6 +101,10 @@ renderer.domElement.addEventListener("pointermove", (ev) => {
 
 renderer.domElement.addEventListener("click", () => {
   if (introPlaying) return; // ignore clicks until the intro finishes
+  if (hoveredPresenter) {
+    tryHandlePresenterClick(hoveredPresenter);
+    return;
+  }
   if (!hovered) return;
   openItem(hovered.userData.item, hovered.userData.category);
 });
@@ -321,6 +331,103 @@ muteBtn.addEventListener("click", async () => {
   refreshMuteBtn();
 });
 
+// ------------- presentation mode -------------
+const panelLeft = document.getElementById("panel-left");
+const popupEl   = document.getElementById("pres-popup");
+const popupImg  = document.getElementById("pres-img");
+const popupName = document.getElementById("pres-name");
+const popupGroup = document.getElementById("pres-group");
+const popupDesc = document.getElementById("pres-desc");
+document.getElementById("pres-close").addEventListener("click", () => closePresenterPopup());
+
+// Build the left-panel roster from PRESENTERS data.
+function renderPresenterPanel() {
+  const html = [];
+  for (const g of PRESENTERS) {
+    html.push(`<h2>${escapeHtml(g.group)}</h2>`);
+    for (const m of g.members) {
+      html.push(
+        `<div class="presenter-row" data-id="${m.id}" data-group-id="${g.id}">` +
+          `<img src="${m.photo}" alt="" loading="lazy" />` +
+          `<div><div class="nm">${escapeHtml(m.name)}</div>` +
+          `<div class="gr">${escapeHtml(g.id === "capstone" ? "Capstone" : "Project Presentation")}</div></div>` +
+        `</div>`
+      );
+    }
+  }
+  html.push(`<div class="panel-foot">Click a name to fly to their tile</div>`);
+  panelLeft.innerHTML = html.join("");
+  panelLeft.addEventListener("click", (ev) => {
+    const row = ev.target.closest(".presenter-row");
+    if (!row) return;
+    panelLeft.querySelectorAll(".presenter-row").forEach(r => r.classList.remove("active"));
+    row.classList.add("active");
+    selectPresenter(row.dataset.id);
+  });
+}
+renderPresenterPanel();
+
+function findPresenter(id) {
+  for (const g of PRESENTERS) {
+    const m = g.members.find(x => x.id === id);
+    if (m) return { member: m, group: g };
+  }
+  return null;
+}
+
+function selectPresenter(id) {
+  const found = findPresenter(id);
+  if (!found) return;
+  const target = presentersApi.cameraTargetFor(id);
+  if (!target) return;
+
+  // Pause auto-orbit during the fly-to so the camera lands cleanly on the tile.
+  controls.autoRotate = false;
+  flyCameraTo(target.camPos, target.lookAt, 1100);
+
+  // Open the popup a beat after the camera starts moving.
+  setTimeout(() => openPresenterPopup(found.member, found.group), 350);
+}
+
+function openPresenterPopup(member, group) {
+  popupImg.src = member.photo;
+  popupImg.alt = member.name;
+  popupName.textContent = member.name;
+  popupGroup.textContent = group.group;
+  popupDesc.textContent = member.description;
+  popupEl.classList.add("show");
+}
+
+function closePresenterPopup() {
+  popupEl.classList.remove("show");
+  panelLeft.querySelectorAll(".presenter-row").forEach(r => r.classList.remove("active"));
+}
+
+// Presentation Mode toggle (top-bar chip)
+const presentBtn = document.getElementById("btn-present");
+let presentationMode = false;
+presentBtn.addEventListener("click", () => {
+  presentationMode = !presentationMode;
+  presentBtn.classList.toggle("active", presentationMode);
+  panelLeft.classList.toggle("show", presentationMode);
+  if (!presentationMode) closePresenterPopup();
+});
+
+// Also open the popup when a presenter tile is clicked directly in the canvas.
+// (Hook into the existing canvas click handler — done via a small change below.)
+function tryHandlePresenterClick(hitObject) {
+  let n = hitObject;
+  while (n && !n.userData.presenter) n = n.parent;
+  if (!n) return false;
+  const id = n.userData.presenter.id;
+  // Highlight the corresponding row in the panel if it's open
+  panelLeft.querySelectorAll(".presenter-row").forEach(r => {
+    r.classList.toggle("active", r.dataset.id === id);
+  });
+  selectPresenter(id);
+  return true;
+}
+
 // ------------- enter-the-canvas gate -------------
 const gateEl = document.getElementById("gate");
 const gateBtn = document.getElementById("gate-enter");
@@ -491,19 +598,28 @@ function animate() {
     const frame = tile.userData.frame;
     if (frame) frame.material.opacity = 0.45 + Math.sin(t * 1.3 + seed) * 0.12;
   }
+  // Presenter tile bobbing
+  presentersApi.group.children.forEach((t) => {
+    if (!t.userData.basePos) return;
+    t.position.y = t.userData.basePos.y + Math.sin((clock.elapsedTime * 0.6) + t.userData.seed) * 0.18;
+  });
 
   // Core + sky ticks
   if (core.userData.tick) core.userData.tick(t);
   if (skyTick) skyTick(t);
 
-  // Hover detection
+  // Hover detection — across both asset tiles and presenter tiles
   raycaster.setFromCamera(pointer, camera);
-  const hits = raycaster.intersectObjects(tiles, true);
+  const hits = raycaster.intersectObjects([...tiles, presentersApi.group], true);
   let hit = null;
+  let hitPres = null;
   if (hits.length) {
     let n = hits[0].object;
-    while (n && !n.userData.item) n = n.parent;
-    if (n && n.visible) hit = n;
+    while (n && !(n.userData.item || n.userData.presenter)) n = n.parent;
+    if (n && n.visible) {
+      if (n.userData.presenter) hitPres = n;
+      else hit = n;
+    }
   }
   if (hit !== hovered) {
     if (hovered) {
@@ -520,10 +636,26 @@ function animate() {
         ? `${hovered.userData.item.author} · ${hovered.userData.category.label}`
         : hovered.userData.category.label;
       document.body.style.cursor = "pointer";
-    } else {
-      tipEl.style.opacity = "0";
-      document.body.style.cursor = "default";
     }
+  }
+  if (hitPres !== hoveredPresenter) {
+    if (hoveredPresenter) {
+      hoveredPresenter.userData.frame.material.color.set(0xFF8B6F);
+      hoveredPresenter.scale.setScalar(1);
+    }
+    hoveredPresenter = hitPres;
+    if (hoveredPresenter) {
+      hoveredPresenter.userData.frame.material.color.set(0xffffff);
+      hoveredPresenter.scale.setScalar(1.08);
+      tipEl.style.opacity = "1";
+      tipTitle.textContent = hoveredPresenter.userData.presenter.name;
+      tipBy.textContent = "Presenter · click to focus";
+      document.body.style.cursor = "pointer";
+    }
+  }
+  if (!hovered && !hoveredPresenter) {
+    tipEl.style.opacity = "0";
+    document.body.style.cursor = "default";
   }
 
   // Camera fly-to easing
