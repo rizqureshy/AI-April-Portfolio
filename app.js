@@ -406,15 +406,15 @@ function selectPresenter(id) {
   const lp = tile.position; // local position in the world group
   const localAngle = Math.atan2(lp.z, lp.x);
   let finalRot = localAngle - Math.PI / 2;
-  // Always spin forward (positive) and add 2 full rotations for drama.
+  // Always spin forward (positive) and add 1 full rotation for drama.
   while (finalRot < world.rotation.y + 0.3) finalRot += 2 * Math.PI;
-  finalRot += 2 * 2 * Math.PI;
+  finalRot += 1 * 2 * Math.PI;
 
   spinAnim = {
     from: world.rotation.y,
     to: finalRot,
     t0: performance.now(),
-    dur: 1100,
+    dur: 1900,
     onComplete: () => {
       // Lift the tile out toward the camera once it's facing us.
       liftedTile = tile;
@@ -432,7 +432,7 @@ function selectPresenter(id) {
 
   // Fade the popup in toward the end of the spin so it's already there when
   // the tile finishes rising.
-  setTimeout(() => openPresenterPopup(found.member, found.group), 850);
+  setTimeout(() => openPresenterPopup(found.member, found.group), 1550);
 }
 
 function openPresenterPopup(member, group) {
