@@ -111,23 +111,23 @@
   .panel-foot{position:absolute;left:18px;right:18px;bottom:18px;font-size:10px;color:#5d6c8a;letter-spacing:.12em;text-transform:uppercase}
 
   /* Wide horizontal presenter overlay — image(s) on the left, transparent text on the right */
-  .pres-popup{position:fixed;left:calc(50% + 150px);transform:translateX(-50%) translateY(20px);bottom:34px;z-index:7;display:flex;width:min(900px,calc(100vw - 360px));max-height:46vh;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,rgba(15,18,32,.45),rgba(10,12,22,.20) 60%,rgba(10,12,22,.05));border:1px solid rgba(255,139,111,.35);backdrop-filter:blur(10px);box-shadow:0 30px 80px rgba(0,0,0,.5), 0 0 60px rgba(255,139,111,.18);opacity:0;pointer-events:none;transition:opacity .35s ease, transform .35s ease}
-  .pres-popup.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
-  /* If the left presentation panel is closed, just center the popup. */
+  .pres-popup{position:fixed;left:calc(50% + 150px);top:50%;transform:translate(-50%,-50%) scale(.97);z-index:7;display:flex;width:min(900px,calc(100vw - 360px));max-height:60vh;border-radius:20px;overflow:hidden;background:linear-gradient(90deg,rgba(8,10,18,.55) 0%,rgba(8,10,18,.32) 42%,rgba(8,10,18,.10) 65%,rgba(8,10,18,0) 100%);border:1px solid rgba(255,139,111,.18);backdrop-filter:blur(4px);box-shadow:0 30px 80px rgba(0,0,0,.45), 0 0 50px rgba(255,139,111,.12);opacity:0;pointer-events:none;transition:opacity .35s ease, transform .35s ease}
+  .pres-popup.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+  /* If the left presentation panel is closed, center the popup horizontally instead. */
   body:not(.present-on) .pres-popup{left:50%}
   .pres-popup-imgs{flex:0 0 42%;display:grid;background:#0a0612;min-height:300px}
   .pres-popup-imgs.single{grid-template-columns:1fr;grid-template-rows:1fr}
   .pres-popup-imgs.group{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px}
   .pres-popup-imgs img{width:100%;height:100%;object-fit:cover;display:block}
   .pres-popup-info{flex:1;padding:30px 34px;display:flex;flex-direction:column;justify-content:center;background:transparent;color:var(--ink);min-width:0}
-  .pres-popup-eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#FF8B6F;font-weight:700;margin-bottom:10px;text-shadow:0 1px 6px rgba(0,0,0,.6)}
-  .pres-popup-name{margin:0 0 8px;font-size:28px;font-weight:800;letter-spacing:-.01em;color:#fff;text-shadow:0 1px 12px rgba(0,0,0,.7);line-height:1.15}
-  .pres-popup-group{color:#cdd6e8;font-size:13px;margin-bottom:18px;text-shadow:0 1px 6px rgba(0,0,0,.6)}
-  .pres-popup-desc{color:#eaf2ff;font-size:15px;line-height:1.6;text-shadow:0 1px 6px rgba(0,0,0,.55);overflow-y:auto;flex:1;padding-right:6px}
+  .pres-popup-eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#FF8B6F;font-weight:700;margin-bottom:10px;text-shadow:0 2px 12px rgba(0,0,0,.85), 0 0 4px rgba(0,0,0,.9)}
+  .pres-popup-name{margin:0 0 8px;font-size:28px;font-weight:800;letter-spacing:-.01em;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.9), 0 0 6px rgba(0,0,0,.9);line-height:1.15}
+  .pres-popup-group{color:#dbe4f5;font-size:13px;margin-bottom:18px;text-shadow:0 2px 10px rgba(0,0,0,.85), 0 0 4px rgba(0,0,0,.9)}
+  .pres-popup-desc{color:#eef3ff;font-size:15px;line-height:1.6;text-shadow:0 2px 10px rgba(0,0,0,.85), 0 0 4px rgba(0,0,0,.85);overflow-y:auto;flex:1;padding-right:6px}
   .pres-popup-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);color:#fff;cursor:pointer;display:grid;place-items:center;font-size:16px;line-height:1;transition:background .15s ease;z-index:2}
   .pres-popup-close:hover{background:rgba(0,0,0,.8)}
   @media (max-width:880px){
-    .pres-popup{width:calc(100vw - 32px);left:50%;flex-direction:column;max-height:70vh}
+    .pres-popup{width:calc(100vw - 32px);left:50%;flex-direction:column;max-height:80vh}
     body.present-on .pres-popup{left:50%}
     .pres-popup-imgs{flex:0 0 220px;min-height:220px}
   }
