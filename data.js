@@ -37,10 +37,10 @@ export const PRESENTERS = [
     display: "group",
     description: "Placeholder description for the Capstone team's joint presentation. Update with the team's shared topic, approach, and key insights.",
     members: [
-      { id: "isabelle-puller", name: "Isabelle Puller", photo: f("presenters", "isabelle-puller.png") },
-      { id: "ashley-mims",     name: "Ashley Mims",     photo: f("presenters", "ashley-mims.png") },
-      { id: "lorna-joiner",    name: "Lorna Joiner",    photo: f("art", "Lorna Joiner AI Art.jpg") },
-      { id: "dalia-osorio",    name: "Dalia Osorio",    photo: f("art", "Dalia Osorio AI Art.jpg") },
+      { id: "isabelle-puller", name: "Isabelle Puller", photo: f("presenters", "isabelle_puller.jpg") },
+      { id: "ashley-mims",     name: "Ashley Mims",     photo: f("presenters", "ashley_mims.jpg") },
+      { id: "lorna-joiner",    name: "Lorna Joiner",    photo: f("presenters", "lorna_joiner.jpg") },
+      { id: "dalia-osorio",    name: "Dalia Osorio",    photo: f("presenters", "dalia_osorio.jpg") },
     ],
   },
   {
@@ -48,12 +48,12 @@ export const PRESENTERS = [
     group: "Project Presentations & Key Learning Insights",
     display: "individual",
     members: [
-      { id: "michael-bourgeois", name: "Michael Bourgeois", photo: f("art", "Michael AI Art.jpg"),               description: "Placeholder description. To be updated with what Michael will share." },
-      { id: "calley-hood",       name: "Calley Hood",       photo: f("art", "Calley Hood AI Art.png"),           description: "Placeholder description. To be updated with what Calley will share." },
-      { id: "elena-cazan",       name: "Elena Cazan",       photo: f("presenters", "elena-cazan.png"),           description: "Placeholder description. To be updated with what Elena will share." },
-      { id: "sol-helou",         name: "Sol Helou",         photo: f("presenters", "sol-helou.png"),             description: "Placeholder description. To be updated with what Sol will share." },
-      { id: "jason-sherwood",    name: "Jason Sherwood",    photo: f("presenters", "jason-sherwood.png"),        description: "Placeholder description. To be updated with what Jason will share." },
-      { id: "veronica-john",     name: "Veronica John",     photo: f("art", "Veronica John AI Art.jpg"),         description: "Placeholder description. To be updated with what Veronica will share." },
+      { id: "michael-bourgeois", name: "Michael Bourgeois", photo: f("presenters", "michael_bourgeois.jpg"), description: "Placeholder description. To be updated with what Michael will share." },
+      { id: "calley-hood",       name: "Calley Hood",       photo: f("presenters", "calley_hood.jpg"),       description: "Placeholder description. To be updated with what Calley will share." },
+      { id: "elena-cazan",       name: "Elena Cazan",       photo: f("presenters", "elena_cazan.jpg"),       description: "Placeholder description. To be updated with what Elena will share." },
+      { id: "sol-helou",         name: "Sol Helou",         photo: f("presenters", "sol_helou.jpg"),         description: "Placeholder description. To be updated with what Sol will share." },
+      { id: "jason-sherwood",    name: "Jason Sherwood",    photo: f("presenters", "jason_sherwood.jpg"),    description: "Placeholder description. To be updated with what Jason will share." },
+      { id: "veronica-john",     name: "Veronica John",     photo: f("presenters", "veronica_john.jpg"),     description: "Placeholder description. To be updated with what Veronica will share." },
     ],
   },
 ];
