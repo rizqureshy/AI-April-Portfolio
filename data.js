@@ -35,7 +35,7 @@ export const PRESENTERS = [
     id: "capstone",
     group: "Capstone Presentation",
     display: "group",
-    description: "Placeholder description for the Capstone team's joint presentation. Update with the team's shared topic, approach, and key insights.",
+    description: "The Capstone team has built a SCORM Analyzer that uses AI and decoding technologies to inspect courses built as SCORM packages — giving creators and administrators deeper visibility into the topics, links, health, and relevance of our course catalog.",
     members: [
       { id: "isabelle-puller", name: "Isabelle Puller", photo: f("presenters", "isabelle_puller.jpg") },
       { id: "ashley-mims",     name: "Ashley Mims",     photo: f("presenters", "ashley_mims.jpg") },
@@ -48,10 +48,10 @@ export const PRESENTERS = [
     group: "Project Presentations & Key Learning Insights",
     display: "individual",
     members: [
-      { id: "michael-bourgeois", name: "Michael Bourgeois", photo: f("presenters", "michael_bourgeois.jpg"), description: "Placeholder description. To be updated with what Michael will share." },
+      { id: "michael-bourgeois", name: "Michael Bourgeois", photo: f("presenters", "michael_bourgeois.jpg"), description: "A Challenger Methodology course where sales can interact with an AI persona live — bringing direct AI conversation capabilities inside a course for the first time." },
       { id: "calley-hood",       name: "Calley Hood",       photo: f("presenters", "calley_hood.jpg"),       description: "Placeholder description. To be updated with what Calley will share." },
-      { id: "elena-cazan",       name: "Elena Cazan",       photo: f("presenters", "elena_cazan.jpg"),       description: "Placeholder description. To be updated with what Elena will share." },
-      { id: "sol-helou",         name: "Sol Helou",         photo: f("presenters", "sol_helou.jpg"),         description: "Placeholder description. To be updated with what Sol will share." },
+      { id: "elena-cazan",       name: "Elena Cazan",       photo: f("presenters", "elena_cazan.jpg"),       description: "Sharing her productivity tip on using AI to solve real business problems." },
+      { id: "sol-helou",         name: "Sol Helou",         photo: f("presenters", "sol_helou.jpg"),         description: "A powerful Personal Professional Productivity tool that helps users organize themselves, their deliverables, project timelines, and priorities." },
       { id: "jason-sherwood",    name: "Jason Sherwood",    photo: f("presenters", "jason_sherwood.jpg"),    description: "Placeholder description. To be updated with what Jason will share." },
       { id: "veronica-john",     name: "Veronica John",     photo: f("presenters", "veronica_john.jpg"),     description: "Placeholder description. To be updated with what Veronica will share." },
     ],
